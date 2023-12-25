@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+    .input-theme {
+        @apply border-0 border-b-2 focus:border-b-[3px] bg-transparent focus:border-green-400 focus:ring-0 dark:border-slate-700 dark:bg-transparent dark:focus:border-green-400 dark:text-white selection:bg-transparent caret-green-400;
+    }
+}
+
+input {
+    text-align: center;
+}
