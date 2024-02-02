@@ -3,11 +3,11 @@ import ThreadsList from '@/Components/ThreadsList'
 import UserInfo from '@/Components/UserInfo'
 import React, { useEffect, useState } from 'react'
 import { router } from '@inertiajs/react'
+import Modal from '@/utils/Modal'
 
 
 const Base = () => {
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
-
 
 
     useEffect(() => {
@@ -40,9 +40,12 @@ const Base = () => {
 }
 
 export default () => {
+
     if (!localStorage.getItem("token")) {
         router.visit(route('register'))
         return
     }
-    return <Base />
+    return (
+        <Base />
+    )
 }

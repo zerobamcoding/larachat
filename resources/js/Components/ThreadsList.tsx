@@ -1,15 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Bars3Icon, BookmarkIcon, Cog6ToothIcon, MagnifyingGlassIcon, MegaphoneIcon, PhoneIcon, UsersIcon, MoonIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, BookmarkIcon, Cog6ToothIcon, MagnifyingGlassIcon, MegaphoneIcon, PhoneIcon, UsersIcon, MoonIcon, ArrowRightOnRectangleIcon, XMarkIcon, EllipsisVerticalIcon, UserCircleIcon } from '@heroicons/react/24/outline'
 import { clickOutside } from '@/hooks/use-clickOutside'
 import apiClient from '@/libs/apiClient';
 import { AuthResponse } from '@/types';
 import { router } from '@inertiajs/react';
+import Modal from '@/utils/Modal';
+import Setting from './Modals/Setting';
+import UserInfo from './Modals/UserInfo';
 
 interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
 }
 const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
+    const [modalLevel, setModalLevel] = useState<"setting" | "info">("setting")
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const ref = clickOutside(() => setIsSidebarOpen(false))
 
@@ -58,7 +64,10 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
                             <BookmarkIcon className='h-5' />
                             <span>Saved Messages</span>
                         </li>
-                        <li className='flex flex-row space-x-5 p-5 cursor-pointer hover:bg-slate-400/20'>
+                        <li className='flex flex-row space-x-5 p-5 cursor-pointer hover:bg-slate-400/20' onClick={() => {
+                            setIsSidebarOpen(false);
+                            setIsModalOpen(true)
+                        }}>
                             <Cog6ToothIcon className='h-5' />
                             <span>Settings</span>
                         </li>
@@ -235,6 +244,11 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
                 </div>
 
             </div>
+            <Modal show={isModalOpen} close={setIsModalOpen} animation='zoom'>
+                {modalLevel === "setting" ? (
+                    <Setting close={setIsModalOpen} level={setModalLevel} />
+                ) : <UserInfo close={setIsModalOpen} level={setModalLevel} />}
+            </Modal>
         </>
     )
 }
