@@ -5,19 +5,20 @@ import { useEffect, useState } from 'react'
 import { router } from '@inertiajs/react'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import { useActions } from '@/hooks/useActions'
+
 const Base = () => {
     const { getMeAction } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
-    const { user } = useTypedSelector(state => state.me)
+    const { user, loading } = useTypedSelector(state => state.me)
 
     useEffect(() => {
         if (!user) getMeAction();
     }, [])
 
     useEffect(() => {
-        console.log(user);
+        console.log(loading);
 
-    }, [user])
+    }, [user, loading])
     useEffect(() => {
         const theme = isDark ? "dark" : "light"
         localStorage.setItem("theme", theme)

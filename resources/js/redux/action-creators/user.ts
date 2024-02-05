@@ -1,14 +1,16 @@
 import { ThunkDispatch } from "redux-thunk";
 import { MeActions } from "../actions/user";
 import { MeTypes } from "../action-types/user";
+import apiClient from "@/libs/apiClient";
+import { AuthPayload } from "../types/user";
 
-export const getMeAction = () => (dispatch: ThunkDispatch<{}, {}, MeActions>) => {
+export const getMeAction = () => async (dispatch: ThunkDispatch<{}, {}, MeActions>) => {
     dispatch({ type: MeTypes.ME_LOADING })
 
     try {
-        // api => request
+        const { data }: { data: AuthPayload } = await apiClient.post('/user/me')
 
-        dispatch({ type: MeTypes.ME_SUCCESS, payload: { success: true, user: { id: 1, mobile: 123, username: "mahdi" } } })
+        dispatch({ type: MeTypes.ME_SUCCESS, payload: data })
     } catch (error) {
         console.log(error);
 

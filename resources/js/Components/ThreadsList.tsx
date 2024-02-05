@@ -7,12 +7,13 @@ import { router } from '@inertiajs/react';
 import Modal from '@/utils/Modal';
 import Setting from './Modals/Setting';
 import UserInfo from './Modals/UserInfo';
-
+import { useTypedSelector } from '@/hooks/use-typed-selector';
 interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
 }
 const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
+    const { user } = useTypedSelector(state => state.me)
     const [modalLevel, setModalLevel] = useState<"setting" | "info">("setting")
     const [isModalOpen, setIsModalOpen] = useState(false)
 
@@ -42,9 +43,10 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
 
                         <div className="w-12 h-12 my-2 bg-blue-500 bg-center bg-no-repeat bg-cover rounded-full cursor-pointer"
                         >
+
                             <img className="content-center object-cover w-full h-full border-2 border-gray-200 rounded-full" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=50" alt="" />
                         </div>
-                        <h3>mahdi</h3>
+                        <h3>{user && user.name ? user.name : user ? `${user.username}` : "Not set"}</h3>
                     </div>
                     <hr />
                     <ul role='list '>

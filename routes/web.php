@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\Authenticate;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -29,6 +30,11 @@ Route::controller(Authenticate::class)->prefix("auth")->name('auth.')->group(fun
     Route::post('/register', 'register')->name("register");
     Route::get('/logout', 'logout')->name("logout")->middleware("auth:sanctum");
 });
+
+Route::controller(UserController::class)->prefix("user")->name('user.')->group(function () {
+    Route::post('/me', 'getMe')->name("me")->middleware("auth:sanctum");
+});
+
 
 
 require __DIR__ . '/auth.php';
