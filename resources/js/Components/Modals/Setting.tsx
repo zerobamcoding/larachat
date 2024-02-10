@@ -21,7 +21,7 @@ const Setting: React.FC<PageProps> = ({ close, level }) => {
                 </div>
             </div>
             <div className='flex space-x-4 items-center p-5 pt-0'>
-                <Avatar h={20} w={20} />
+                <Avatar h={16} w={16} />
                 <ul role='list'>
                     <li className='text-lg font-extrabold'>
                         <h2>{user && user.name ? user.name : user ? `${user.username}` : "Not set"}</h2>

@@ -1,4 +1,4 @@
-import { MeTypes } from "../action-types/user";
+import { MeTypes, AvatarTypes } from "../action-types/user";
 import { AuthPayload } from "../types/user";
 
 interface MeLoadingAction {
@@ -18,3 +18,4 @@ interface MeErrorAction {
 export type MeActions = MeLoadingAction |
     MeSuccessAction |
     MeErrorAction
+
