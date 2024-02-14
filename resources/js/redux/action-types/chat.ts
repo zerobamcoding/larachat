@@ -1,0 +1,5 @@
+export enum SearchUserType {
+    SEARCH_LOADING = "SEARCH_LOADING",
+    SEARCH_SUCCESS = "SEARCH_SUCCESS",
+    SEARCH_ERROR = "SEARCH_ERROR"
+}

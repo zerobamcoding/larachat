@@ -19,3 +19,9 @@ export interface AuthPayload {
     user: User | null
     errors?: ValidationErrors
 }
+
+export interface ThreadsList {
+    success: boolean
+    users: User[] | null
+    errors?: ValidationErrors
+}
