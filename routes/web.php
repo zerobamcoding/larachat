@@ -62,6 +62,7 @@ Route::controller(UserController::class)->prefix("user")->name('user.')->group(f
 
 Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(function () {
     Route::post('/search', 'searchUser')->name("search")->middleware("auth:sanctum");
+    Route::post('/send', 'sendMessage')->name("send")->middleware("auth:sanctum");
 });
 
 
