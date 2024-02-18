@@ -5,11 +5,14 @@ import { useEffect, useState } from 'react'
 import { router } from '@inertiajs/react'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import { useActions } from '@/hooks/useActions'
+import { User } from '@/redux/types/user'
 
 const Base = () => {
     const { getMeAction } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
+
+    const [selectedThread, setSelectedThread] = useState<User | null>(null)
 
     useEffect(() => {
         if (!user) getMeAction();
@@ -33,9 +36,9 @@ const Base = () => {
 
     return (
         <div className="relative flex w-full h-screen overflow-hidden antialiased bg-gray-200">
-            <ThreadsList dark={isDark} changeTheme={setIsDark} />
+            <ThreadsList dark={isDark} changeTheme={setIsDark} selectThread={setSelectedThread} />
 
-            <Messages />
+            <Messages thread={selectedThread} />
 
             <UserInfo />
         </div>

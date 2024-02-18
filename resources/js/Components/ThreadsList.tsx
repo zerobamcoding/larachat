@@ -9,11 +9,13 @@ import Setting from './Modals/Setting';
 import UserInfo from './Modals/UserInfo';
 import { useTypedSelector } from '@/hooks/use-typed-selector';
 import { useActions } from '@/hooks/useActions';
+import { User } from '@/redux/types/user';
 interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
+    selectThread: React.Dispatch<React.SetStateAction<User | null>>
 }
-const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
+const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread }) => {
     const { searchUser } = useActions();
     const { user } = useTypedSelector(state => state.me)
     const { users: searchedUsers } = useTypedSelector(state => state.search)
@@ -135,7 +137,11 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme }) => {
                     <ul className="flex flex-col w-full h-screen px-2 select-none text-black dark:text-white">
                         {searchedUsers ? searchedUsers.map(s => (
 
-                            <li className="flex flex-no-wrap items-center pr-3 rounded-lg cursor-pointer mt-200 py-65 hover:bg-gray-200 dark:hover:text-black" style={{ paddingTop: "0.65rem", paddingBottom: "0.65rem" }}>
+                            <li
+                                className="flex flex-no-wrap items-center pr-3 rounded-lg cursor-pointer mt-200 py-65 hover:bg-gray-200 dark:hover:text-black"
+                                style={{ paddingTop: "0.65rem", paddingBottom: "0.65rem" }}
+                                onClick={() => selectThread(s)}
+                            >
                                 <div className="flex justify-between w-full focus:outline-none">
                                     <div className="flex justify-between w-full">
                                         <div className="relative flex items-center justify-center w-12 h-12 ml-2 mr-3 text-xl font-semibold text-white bg-blue-500 rounded-full flex-no-shrink">

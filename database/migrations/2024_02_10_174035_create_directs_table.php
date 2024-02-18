@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_one')->constrained("users");
             $table->foreignId('user_two')->constrained("users");
-            $table->foreignId('pinned')->nullable()->constrained("messages");
             $table->timestamps();
         });
     }
