@@ -47,11 +47,14 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
     switch (action.type) {
         case ChatsType.CHATS_LOADING:
             return { ...state, loading: true }
-        case ChatsType.CHATS_ADD_MESSAGE:
-            if (state.threads) {
-                const oldThreads = state.threads.filter(th => th.id !== action.payload.thread.id)
-                return { loading: false, threads: [action.payload.thread, oldThreads] }
-            }
+        case ChatsType.CHATS_GET_THREADS:
+            return { loading: false, threads: action.payload.threads }
+        // case ChatsType.CHATS_ADD_MESSAGE:
+        //     if (state.threads) {
+        //         const oldThreads = state.threads.filter(th => th.id !== action.payload.thread?.id)
+        //         return { loading: false, threads: [action.payload.thread, oldThreads] }
+        //     }
+
         case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
         default:

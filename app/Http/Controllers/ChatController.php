@@ -77,4 +77,17 @@ class ChatController extends Controller
 
         return $conversation;
     }
+    public function getThreads()
+    {
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
+            ->get()
+            ->makeHidden(['user_one', "user_two"])
+            ->toArray();
+
+        return ["success" => true, "threads" => $directs];
+    }
 }

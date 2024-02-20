@@ -21,4 +21,14 @@ class Direct extends Model
     {
         return $this->morphOne(Message::class, 'messageable')->latestOfMany();
     }
+
+    public function userone()
+    {
+        return $this->belongsTo(User::class, "user_one", "id");
+    }
+
+    public function usertwo()
+    {
+        return $this->belongsTo(User::class, "user_two", "id");
+    }
 }

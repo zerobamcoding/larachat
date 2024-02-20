@@ -1,15 +1,23 @@
-import { User, ValidationErrors } from "@/types"
+import { User, ValidationErrors } from "./user"
 
+
+export interface ThreadsResponse {
+    success: boolean;
+    threads: Direct[]
+    errors?: ValidationErrors
+}
 
 export interface SentMessageResponse {
     success: boolean;
-    thread: Direct
+    thread?: Direct
     errors?: ValidationErrors
 }
 export interface Direct {
     id: number;
-    user_one: User
-    user_two: User
+    user_one?: number
+    user_two?: number
+    userone: User
+    usertwo: User
     messages?: Message[]
     created_at: Date
     updated_at: Date

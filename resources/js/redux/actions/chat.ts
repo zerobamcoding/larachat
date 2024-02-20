@@ -1,5 +1,5 @@
 import { SearchUserType, ChatsType } from "../action-types/chat";
-import { SentMessageResponse } from "../types/chat";
+import { SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { ThreadsList } from "../types/user";
 
 interface SearchUserLoading {
@@ -28,15 +28,21 @@ interface ChatsLoading {
 
 interface SendMessageSuccess {
     type: ChatsType.CHATS_ADD_MESSAGE
-    payload: SentMessageResponse
+    payload: ThreadsResponse
 }
 
+interface getThreadsSuccess {
+    type: ChatsType.CHATS_GET_THREADS
+    payload: ThreadsResponse
+}
 interface ChatsError {
     type: ChatsType.CHATS_ERROR
-    payload: SentMessageResponse
+    payload: ThreadsResponse
 }
 
-export type ChatsActions = ChatsLoading |
+export type ChatsActions =
+    ChatsLoading |
+    getThreadsSuccess |
     SendMessageSuccess |
     ChatsError
 

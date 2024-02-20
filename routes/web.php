@@ -28,21 +28,27 @@ Route::get('/', function () {
 
 
 Route::get("/test", function () {
-    // $direct = new Direct();
-    // $direct->user_one = User::find(1)->id;
-    // $direct->user_two = User::find(2)->id;
-    // $direct->save();
-    /**
-     * @var Direct $direct
-     */
-    $direct = Direct::find(1);
+    // // $direct = new Direct();
+    // // $direct->user_one = User::find(1)->id;
+    // // $direct->user_two = User::find(2)->id;
+    // // $direct->save();
+    // /**
+    //  * @var Direct $direct
+    //  */
+    // $direct = Direct::find(1);
 
-    $message = $direct->messages()->create([
-        "message" => "Salam",
-        "sender" => User::find(1)->id,
+    // $message = $direct->messages()->create([
+    //     "message" => "Salam",
+    //     "sender" => User::find(1)->id,
 
-    ]);
-    dd($direct->messages);
+    // ]);
+    // dd($direct->messages);
+    $user = User::find(2);
+    $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
+        ->get()
+        ->makeHidden(['user_one', "user_two"])
+        ->toArray();
+    dd($directs);
 });
 
 Route::controller(Authenticate::class)->prefix("auth")->name('auth.')->group(function () {
@@ -61,6 +67,7 @@ Route::controller(UserController::class)->prefix("user")->name('user.')->group(f
 
 
 Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(function () {
+    Route::get('/threads', 'getThreads')->name("threads")->middleware("auth:sanctum");
     Route::post('/search', 'searchUser')->name("search")->middleware("auth:sanctum");
     Route::post('/send', 'sendMessage')->name("send")->middleware("auth:sanctum");
 });

@@ -8,14 +8,16 @@ import { useActions } from '@/hooks/useActions'
 import { User } from '@/redux/types/user'
 
 const Base = () => {
-    const { getMeAction } = useActions();
+    const { getMeAction, getThreads } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
+    const { threads } = useTypedSelector(state => state.threads)
 
     const [selectedThread, setSelectedThread] = useState<User | null>(null)
 
     useEffect(() => {
         if (!user) getMeAction();
+        if (!threads) getThreads()
     }, [])
 
     useEffect(() => {
