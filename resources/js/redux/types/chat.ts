@@ -9,7 +9,7 @@ export interface ThreadsResponse {
 
 export interface SentMessageResponse {
     success: boolean;
-    thread?: Direct
+    message?: Message
     errors?: ValidationErrors
 }
 export interface Direct {
@@ -28,6 +28,7 @@ export interface Message {
     seen: boolean
     pinned: boolean
     sender: User
+    messageable_id: number
     replied?: number
     type: "text" | "file"
     created_at: Date

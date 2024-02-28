@@ -2,20 +2,29 @@ import React, { useState } from 'react'
 import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
-
+import { Direct } from '@/redux/types/chat'
+import { useTypedSelector } from '@/hooks/use-typed-selector'
 interface PageProps {
-    thread: User | null
+    thread: User | Direct | null
 }
 const Messages: React.FC<PageProps> = ({ thread }) => {
+    const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage } = useActions()
     const [messageValue, setMessageValue] = useState("")
 
+    const isAnUser = (obj: any): obj is User => {
+        return "username" in obj;
+    }
     const sendMessageHandler = () => {
-        if (thread) {
+        if (isAnUser(thread)) {
+            sendMessage({ to: thread.id, message: messageValue })
+        } else {
 
-            sendMessage({ to: thread?.id, message: messageValue })
-            setMessageValue("")
+            if (thread && me) {
+                sendMessage({ to: me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id, message: messageValue })
+            }
         }
+        setMessageValue("")
     }
     return (
         <div className="relative flex flex-col flex-1">

@@ -41,11 +41,11 @@ class ChatController extends Controller
             $to = User::find($request->to);
 
             $conversation = $this->getConversation($user, $to);
-            $conversation->messages()->create([
+            $message = $conversation->messages()->create([
                 "message" => $request->message,
                 "sender" => $user->id,
             ]);
-            return ["success" => true, "thread" => $conversation->with("latestMessage")->get()];
+            return ["success" => true, "message" => $message];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];
         }

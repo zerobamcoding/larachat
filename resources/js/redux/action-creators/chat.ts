@@ -31,9 +31,9 @@ export const sendMessage = (messageDate: MessageData) => async (dispatch: ThunkD
     dispatch({ type: ChatsType.CHATS_LOADING })
 
     try {
-        const { data }: { data: ThreadsResponse } = await apiClient.post(route("chat.send"), messageDate)
-        if (data && !data.success) {
-            dispatch({ type: ChatsType.CHATS_ERROR, payload: data })
+        const { data }: { data: SentMessageResponse } = await apiClient.post(route("chat.send"), messageDate)
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
             return
         }
         dispatch({ type: ChatsType.CHATS_ADD_MESSAGE, payload: data })
@@ -49,8 +49,8 @@ export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActi
 
     try {
         const { data }: { data: ThreadsResponse } = await apiClient.get(route("chat.threads"))
-        if (data && !data.success) {
-            dispatch({ type: ChatsType.CHATS_ERROR, payload: data })
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
             return
         }
         dispatch({ type: ChatsType.CHATS_GET_THREADS, payload: data })

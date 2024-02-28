@@ -137,12 +137,13 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread }) =
 
                 <div className="relative mt-2 mb-4 overflow-x-hidden overflow-y-auto scrolling-touch lg:max-h-sm scrollbar-w-2 scrollbar-track-gray-lighter scrollbar-thumb-rounded scrollbar-thumb-gray">
                     <ul className="flex flex-col w-full h-screen px-2 select-none text-black dark:text-white">
-                        {searchedUsers ? searchedUsers.map(s => (
+                        {searchValue && searchedUsers ? searchedUsers.map(s => (
 
                             <li
                                 className="flex flex-no-wrap items-center pr-3 rounded-lg cursor-pointer mt-200 py-65 hover:bg-gray-200 dark:hover:text-black"
                                 style={{ paddingTop: "0.65rem", paddingBottom: "0.65rem" }}
                                 onClick={() => selectThread(s)}
+                                key={s.id}
                             >
                                 <div className="flex justify-between w-full focus:outline-none">
                                     <div className="flex justify-between w-full">
@@ -182,6 +183,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread }) =
                                 className="flex flex-no-wrap items-center pr-3 rounded-lg cursor-pointer mt-200 py-65 hover:bg-gray-200 dark:hover:text-black"
                                 style={{ paddingTop: "0.65rem", paddingBottom: "0.65rem" }}
                                 onClick={() => selectThread(th)}
+                                key={th.id}
                             >
                                 <div className="flex justify-between w-full focus:outline-none">
                                     <div className="flex justify-between w-full">
