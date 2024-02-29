@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SentDirectProcessed;
 use App\Models\Direct;
 use App\Models\User;
 use Exception;
@@ -45,6 +46,7 @@ class ChatController extends Controller
                 "message" => $request->message,
                 "sender" => $user->id,
             ]);
+            event(new SentDirectProcessed($message, $request->to));
             return ["success" => true, "message" => $message];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];

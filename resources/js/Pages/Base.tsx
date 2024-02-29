@@ -15,15 +15,22 @@ const Base = () => {
 
     const [selectedThread, setSelectedThread] = useState<User | null>(null)
 
+
     useEffect(() => {
         if (!user) getMeAction();
         if (!threads) getThreads()
     }, [])
 
     useEffect(() => {
-        console.log(loading);
+        if (user) {
 
-    }, [user, loading])
+            window.Echo.private(`user.${user.id}`).listen(".new-message", (e: any) => {
+                console.log(e);
+            })
+        }
+
+    }, [user])
+
     useEffect(() => {
         const theme = isDark ? "dark" : "light"
         localStorage.setItem("theme", theme)
