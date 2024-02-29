@@ -1,4 +1,4 @@
-import { MeTypes, AvatarTypes } from "../action-types/user";
+import { MeTypes } from "../action-types/user";
 import { AuthPayload } from "../types/user";
 
 interface MeLoadingAction {

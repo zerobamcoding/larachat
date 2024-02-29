@@ -1,6 +1,6 @@
-import { SearchUserType, SendMessageType } from "../action-types/chat";
-import { MessageResponse } from "../types/chat";
-import { ThreadsList } from "../types/user";
+import { SearchUserType, ChatsType } from "../action-types/chat";
+import { SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { ThreadsList, ValidationErrors } from "../types/user";
 
 interface SearchUserLoading {
     type: SearchUserType.SEARCH_LOADING
@@ -22,21 +22,27 @@ export type SearchUserActions = SearchUserLoading |
 
 
 
-
-interface SendMessageLoading {
-    type: SendMessageType.SEND_MESSAGE_LOADING
+interface ChatsLoading {
+    type: ChatsType.CHATS_LOADING
 }
 
 interface SendMessageSuccess {
-    type: SendMessageType.SEND_MESSAGE_SUCCESS
-    payload: MessageResponse
+    type: ChatsType.CHATS_ADD_MESSAGE
+    payload: SentMessageResponse
 }
 
-interface SendMessageError {
-    type: SendMessageType.SEND_MESSAGE_ERROR
-    payload: MessageResponse
+interface getThreadsSuccess {
+    type: ChatsType.CHATS_GET_THREADS
+    payload: ThreadsResponse
+}
+interface ChatsError {
+    type: ChatsType.CHATS_ERROR
+    payload: { errors: ValidationErrors }
 }
 
-export type SendMessageActions = SendMessageLoading |
+export type ChatsActions =
+    ChatsLoading |
+    getThreadsSuccess |
     SendMessageSuccess |
-    SendMessageError
+    ChatsError
+

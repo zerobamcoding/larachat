@@ -1,5 +1,5 @@
-import { SearchUserType, SendMessageType } from "../action-types/chat";
-import { SearchUserActions, SendMessageActions } from "../actions/chat";
+import { SearchUserType, ChatsType } from "../action-types/chat";
+import { SearchUserActions, ChatsActions } from "../actions/chat";
 import { Direct } from "../types/chat";
 import { User, ValidationErrors } from "../types/user";
 
@@ -34,27 +34,29 @@ interface ChatsState {
     loading: boolean;
     threads: Direct[] | null
     errors?: ValidationErrors
-
 }
 
-const chatInit: ChatsState = {
+const chatsInit: ChatsState = {
     loading: false,
     threads: null
 }
 
 
-
-export const chatsReducer = (state: ChatsState = chatInit, action: SendMessageActions) => {
+export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActions) => {
     switch (action.type) {
-        case SendMessageType.SEND_MESSAGE_LOADING:
+        case ChatsType.CHATS_LOADING:
             return { ...state, loading: true }
-        case SendMessageType.SEND_MESSAGE_SUCCESS:
+        case ChatsType.CHATS_GET_THREADS:
+            return { loading: false, threads: action.payload.threads }
+        case ChatsType.CHATS_ADD_MESSAGE:
             if (state.threads) {
-                const oldDirects = state.threads.filter(th => th.id !== action.payload.conversation.id)
-                return { ...state, loading: false, threads: [action.payload.conversation, oldDirects] }
-
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id)
+                const newThread = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
+                const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
+                return { loading: false, threads: [newThread, ...oldThreads] }
             }
-        case SendMessageType.SEND_MESSAGE_ERROR:
+
+        case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
         default:
             return state

@@ -8,20 +8,31 @@ import { useActions } from '@/hooks/useActions'
 import { User } from '@/redux/types/user'
 
 const Base = () => {
-    const { getMeAction } = useActions();
+    const { getMeAction, getThreads } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
+    const { threads } = useTypedSelector(state => state.threads)
+
+    const [selectedThread, setSelectedThread] = useState<User | null>(null)
+
 
     const [threadSelected, setThreadSelected] = useState<User | null>(null)
 
     useEffect(() => {
         if (!user) getMeAction();
+        if (!threads) getThreads()
     }, [])
 
     useEffect(() => {
-        console.log(loading);
+        if (user) {
 
-    }, [user, loading])
+            window.Echo.private(`user.${user.id}`).listen(".new-message", (e: any) => {
+                console.log(e);
+            })
+        }
+
+    }, [user])
+
     useEffect(() => {
         const theme = isDark ? "dark" : "light"
         localStorage.setItem("theme", theme)
@@ -36,9 +47,9 @@ const Base = () => {
 
     return (
         <div className="relative flex w-full h-screen overflow-hidden antialiased bg-gray-200">
-            <ThreadsList dark={isDark} changeTheme={setIsDark} setThread={setThreadSelected} />
+            <ThreadsList dark={isDark} changeTheme={setIsDark} selectThread={setSelectedThread} />
 
-            <Messages selected={threadSelected} />
+            <Messages thread={selectedThread} />
 
             <UserInfo />
         </div>

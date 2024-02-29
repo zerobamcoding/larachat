@@ -1,11 +1,11 @@
 import { combineReducers } from "redux";
 import { meReducer } from "./userReducers";
-import { searchUserReducer, chatsReducer } from "./chatReducers";
+import { searchUserReducer, threadsReducer } from "./chatReducers";
 
 export const reducers = combineReducers({
     me: meReducer,
     search: searchUserReducer,
-    threads: chatsReducer
+    threads: threadsReducer
 })
 
 export type RootState = ReturnType<typeof reducers>

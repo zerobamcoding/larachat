@@ -1,9 +1,9 @@
 import { ThunkDispatch } from "redux-thunk";
-import { SearchUserActions, SendMessageActions } from "../actions/chat";
-import { SearchUserType, SendMessageType } from "../action-types/chat";
+import { SearchUserActions, ChatsActions } from "../actions/chat";
+import { SearchUserType, ChatsType } from "../action-types/chat";
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
-import { MessageResponse } from "../types/chat";
+import { SentMessageResponse, ThreadsResponse } from "../types/chat";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
     dispatch({ type: SearchUserType.SEARCH_LOADING })
@@ -22,21 +22,38 @@ export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, 
 }
 
 
-interface SendMessageData {
+interface MessageData {
+    to: number;
     message: string
-    user_to: number
     replied?: number
 }
-export const sendMessage = (messageData: SendMessageData) => async (dispatch: ThunkDispatch<{}, {}, SendMessageActions>) => {
-    dispatch({ type: SendMessageType.SEND_MESSAGE_LOADING })
+export const sendMessage = (messageDate: MessageData) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
 
     try {
-        const { data }: { data: MessageResponse } = await apiClient.post(route("chat.send"), messageData)
-        if (data && !data.success) {
-            dispatch({ type: SendMessageType.SEND_MESSAGE_ERROR, payload: data })
+        const { data }: { data: SentMessageResponse } = await apiClient.post(route("chat.send"), messageDate)
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
             return
         }
-        dispatch({ type: SendMessageType.SEND_MESSAGE_SUCCESS, payload: data })
+        dispatch({ type: ChatsType.CHATS_ADD_MESSAGE, payload: data })
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
+
+export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: ThreadsResponse } = await apiClient.get(route("chat.threads"))
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
+            return
+        }
+        dispatch({ type: ChatsType.CHATS_GET_THREADS, payload: data })
     } catch (error) {
         console.log(error);
 

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string("message");
             $table->foreignId('sender')->constrained("users");
             $table->boolean("seen")->default(false);
-            $table->boolean("is_pin")->default(false);
+            $table->boolean("pinned")->default(false);
             $table->foreignId('replied')->nullable()->constrained("messages");
             $table->morphs("messageable");
             $table->timestamps();

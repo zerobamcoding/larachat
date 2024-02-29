@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SentDirectProcessed;
 use App\Models\Direct;
 use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Exception;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class ChatController extends Controller
 {
@@ -28,28 +29,26 @@ class ChatController extends Controller
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "user_to" => "required|exists:users,id",
+            "to" => "required|exists:users,id",
             "message" => "required|string",
             "replied" => "sometimes|exists:messages,id"
         ]);
         if ($validator->fails()) {
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
         }
-
         try {
             $user = Auth::user();
-            $user_to = User::find($request->user_to);
+            $to = User::find($request->to);
 
-            $conversation = $this->getConversation($user, $user_to);
-
-            $conversation->messages()->create([
+            $conversation = $this->getConversation($user, $to);
+            $message = $conversation->messages()->create([
                 "message" => $request->message,
-                "sender" => $user->id
+                "sender" => $user->id,
             ]);
-
-            return ["success" => true, "conversation" => $conversation];
+            event(new SentDirectProcessed($message, $request->to));
+            return ["success" => true, "message" => $message];
         } catch (Exception $e) {
-            return ["success" => false, "erros" => $e];
+            return ["success" => false, "errors" => $e];
         }
     }
 
@@ -70,12 +69,26 @@ class ChatController extends Controller
         )->first();
 
         if (!$conversation) {
-            $newDirect = new Direct();
-            $newDirect->user_one = $from->id;
-            $newDirect->user_two = $to->id;
-            $newDirect->save();
-            return $newDirect;
+            $direct = new Direct();
+            $direct->user_one = $from->id;
+            $direct->user_two = $to->id;
+            $direct->save();
+            return $direct;
         }
+
         return $conversation;
+    }
+    public function getThreads()
+    {
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
+            ->get()
+            ->makeHidden(['user_one', "user_two"])
+            ->toArray();
+
+        return ["success" => true, "threads" => $directs];
     }
 }

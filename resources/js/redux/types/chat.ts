@@ -1,28 +1,36 @@
-import { User, ValidationErrors } from "@/types"
+import { User, ValidationErrors } from "./user"
 
 
-export interface MessageResponse {
-    success: boolean
+export interface ThreadsResponse {
+    success: boolean;
+    threads: Direct[]
     errors?: ValidationErrors
-    conversation: Direct
 }
 
+export interface SentMessageResponse {
+    success: boolean;
+    message?: Message
+    errors?: ValidationErrors
+}
 export interface Direct {
-    id: number
-    user_one: User
-    user_two: User
-    messages: Message[] | null
+    id: number;
+    user_one?: number
+    user_two?: number
+    userone: User
+    usertwo: User
+    messages?: Message[]
     created_at: Date
     updated_at: Date
 }
 export interface Message {
     id: number
-    type: "text" | "file"
     message: string
-    sender: User
     seen: boolean
-    replied: number | null
-    is_pin: boolean
+    pinned: boolean
+    sender: User
+    messageable_id: number
+    replied?: number
+    type: "text" | "file"
     created_at: Date
     updated_at: Date
 }
