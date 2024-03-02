@@ -78,17 +78,38 @@ class ChatController extends Controller
 
         return $conversation;
     }
+
+    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 10)
+    {
+        return $direct
+            ->messages()
+            ->latest()
+            ->offset($offset)
+            ->take($take)
+            ->get()
+            ->reverse()
+            ->values();
+    }
+
     public function getThreads()
     {
         /**
          * @var User $user
          */
         $user = Auth::user();
-        $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
-            ->get()
-            ->makeHidden(['user_one', "user_two"])
-            ->toArray();
+        $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["userone", "usertwo"])
+            ->get();
 
-        return ["success" => true, "threads" => $directs];
+
+        $threads = [];
+        foreach ($directs as $direct) {
+            $message = $this->getThreadMessages($direct);
+            $direct['messages'] = $message;
+            $threads[] = $direct;
+        }
+        // ->makeHidden(['user_one', "user_two"])
+        // ->toArray();
+
+        return ["success" => true, "threads" => $threads];
     }
 }

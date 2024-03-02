@@ -6,6 +6,7 @@ import { router } from '@inertiajs/react'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import { useActions } from '@/hooks/useActions'
 import { User } from '@/redux/types/user'
+import { Direct } from '@/redux/types/chat'
 
 const Base = () => {
     const { getMeAction, getThreads } = useActions();
@@ -13,10 +14,14 @@ const Base = () => {
     const { user, loading } = useTypedSelector(state => state.me)
     const { threads } = useTypedSelector(state => state.threads)
 
-    const [selectedThread, setSelectedThread] = useState<User | null>(null)
+    const [selectedThread, setSelectedThread] = useState<User | Direct | null>(null)
 
-
-    const [threadSelected, setThreadSelected] = useState<User | null>(null)
+    useEffect(() => {
+        if (threads && selectedThread) {
+            const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
+            setSelectedThread(updateSelectedThred)
+        }
+    }, [threads])
 
     useEffect(() => {
         if (!user) getMeAction();

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
@@ -8,6 +8,7 @@ interface PageProps {
     thread: User | Direct | null
 }
 const Messages: React.FC<PageProps> = ({ thread }) => {
+    const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage } = useActions()
     const [messageValue, setMessageValue] = useState("")
@@ -15,6 +16,16 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
     const isAnUser = (obj: any): obj is User => {
         return "username" in obj;
     }
+
+    const scrollToBottom = () => {
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "end" })
+    }
+
+    useEffect(() => {
+        scrollToBottom()
+    }, [])
+
+    useEffect(() => { scrollToBottom() }, [thread])
     const sendMessageHandler = () => {
         if (isAnUser(thread)) {
             sendMessage({ to: thread.id, message: messageValue })
@@ -56,45 +67,53 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                     </button>
                 </div>
             )}
-            <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-hidden dark:bg-slate-800 bg-bottom bg-cover">
+            <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-y-scroll dark:bg-slate-800 bg-bottom bg-cover">
                 {thread && (<>
 
                     <div className="self-center flex-1 w-full max-w-xl">
                         <div className="relative flex flex-col px-3 py-1 m-auto">
                             <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">Channel was created</div>
                             <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">May 6</div>
-                            <div className="self-start w-3/4 my-2">
-                                <div className="p-4 text-sm bg-white rounded-t-lg rounded-r-lg shadow">
-                                    Don't forget to check on all responsive sizes.
-                                </div>
-                            </div>
-                            <div className="self-end w-3/4 my-2">
+                            {isAnUser(thread) ? (<p>User not implemented</p>) : (
+                                thread.messages?.map(message => (
+                                    <div key={message.id} className={`flex flex-row rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                        <div className={`p-4 text-sm `}>
+                                            {message.message}
+                                        </div>
+                                        <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                            <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                            <div ref={ref} />
+                            {/* <div className="self-end w-3/4 my-2">
                                 <div className="p-4 text-sm bg-white rounded-t-lg rounded-l-lg shadow">
                                     Use the buttons above the editor to test on them
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="relative flex items-center self-center w-full max-w-xl p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
-                        <div className="w-full">
-
-                            <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
-                                <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
-                                    <PaperAirplaneIcon className='h-6' />
-                                </button>
-                            </span>
-                            <input
-                                type="search"
-                                className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
-                                style={{ borderRadius: "25px" }}
-                                placeholder="Message..."
-                                autoComplete="off"
-                                value={messageValue}
-                                onChange={(e) => setMessageValue(e.target.value)}
-                                onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                            </div> */}
                         </div>
                     </div>
                 </>)}
+            </div>
+            <div className="relative flex items-center self-center w-full max-w-xl p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
+                <div className="w-full">
+
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
+                        <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
+                            <PaperAirplaneIcon className='h-6' />
+                        </button>
+                    </span>
+                    <input
+                        type="search"
+                        className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
+                        style={{ borderRadius: "25px" }}
+                        placeholder="Message..."
+                        autoComplete="off"
+                        value={messageValue}
+                        onChange={(e) => setMessageValue(e.target.value)}
+                        onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                </div>
             </div>
         </div>
     )

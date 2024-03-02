@@ -27,7 +27,7 @@ export interface Message {
     message: string
     seen: boolean
     pinned: boolean
-    sender: User
+    sender: number
     messageable_id: number
     replied?: number
     type: "text" | "file"

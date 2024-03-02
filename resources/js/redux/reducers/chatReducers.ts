@@ -51,7 +51,7 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
         case ChatsType.CHATS_ADD_MESSAGE:
             if (state.threads) {
                 const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id)
-                const newThread = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
+                const newThread: Direct = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
                 const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
                 return { loading: false, threads: [newThread, ...oldThreads] }
             }
