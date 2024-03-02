@@ -37,6 +37,8 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
         }
         setMessageValue("")
     }
+
+    const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return (
         <div className="relative flex flex-col flex-1">
             {thread && (
@@ -73,18 +75,33 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                     <div className="self-center flex-1 w-full max-w-xl">
                         <div className="relative flex flex-col px-3 py-1 m-auto">
                             <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">Channel was created</div>
-                            <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">May 6</div>
                             {isAnUser(thread) ? (<p>User not implemented</p>) : (
-                                thread.messages?.map(message => (
-                                    <div key={message.id} className={`flex flex-row rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
-                                        <div className={`p-4 text-sm `}>
-                                            {message.message}
-                                        </div>
-                                        <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
-                                            <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
-                                        </div>
-                                    </div>
-                                ))
+                                <>
+                                    {thread && thread.messages && (
+                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(thread.messages[0].created_at).getMonth()]} {new Date(thread.messages[0].created_at).getDay()}</div>
+
+                                    )}
+                                    {thread.messages?.map((message, index, elements) => (
+                                        <>
+
+                                            <div key={message.id} className={`flex flex-row rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                <div className={`p-4 text-sm `}>
+                                                    {message.message}
+                                                </div>
+                                                <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                    <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                </div>
+                                            </div>
+                                            {elements[index + 1] && (
+                                                new Date(elements[index].created_at).getDay() < new Date(elements[index + 1].created_at).getDay() ?
+                                                    (
+                                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDay()}</div>
+
+                                                    ) : null
+                                            )}
+                                        </>
+                                    ))}
+                                </>
                             )}
                             <div ref={ref} />
                             {/* <div className="self-end w-3/4 my-2">

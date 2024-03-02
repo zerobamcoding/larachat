@@ -79,7 +79,7 @@ class ChatController extends Controller
         return $conversation;
     }
 
-    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 10)
+    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 20)
     {
         return $direct
             ->messages()
