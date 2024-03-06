@@ -3,7 +3,7 @@ import { SearchUserActions, ChatsActions } from "../actions/chat";
 import { SearchUserType, ChatsType } from "../action-types/chat";
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
-import { SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { Message, SentMessageResponse, ThreadsResponse } from "../types/chat";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
     dispatch({ type: SearchUserType.SEARCH_LOADING })
@@ -43,6 +43,17 @@ export const sendMessage = (messageDate: MessageData) => async (dispatch: ThunkD
     }
 }
 
+
+export const addMessage = (message: Message) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        dispatch({ type: ChatsType.CHATS_ADD_MESSAGE, payload: { success: true, message } })
+    } catch (error) {
+        console.log(error);
+
+    }
+}
 
 export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
     dispatch({ type: ChatsType.CHATS_LOADING })

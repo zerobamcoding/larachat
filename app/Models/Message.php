@@ -12,4 +12,9 @@ class Message extends Model
     protected $casts = [
         'created_at' => 'datetime',
     ];
+
+    public function messageable()
+    {
+        return $this->morphTo();
+    }
 }

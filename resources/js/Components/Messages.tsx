@@ -40,10 +40,10 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
 
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return (
-        <div className="relative flex flex-col flex-1">
+        <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
             {thread && (
 
-                <div className="z-20 flex flex-grow-0 flex-shrink-0 w-full pr-3 bg-white dark:bg-slate-800/90 text-gray-600 dark:text-white">
+                <div className="z-20 flex flex-grow-0 flex-shrink-0 w-full pr-3  text-gray-600 dark:text-white">
                     <div className="w-12 h-12 mx-4 my-2 bg-blue-500 bg-center bg-no-repeat bg-cover rounded-full cursor-pointer"
                         style={{ backgroundImage: "url(https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=50)" }}>
                     </div>
@@ -78,7 +78,7 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                             {isAnUser(thread) ? (<p>User not implemented</p>) : (
                                 <>
                                     {thread && thread.messages && (
-                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(thread.messages[0].created_at).getMonth()]} {new Date(thread.messages[0].created_at).getDay()}</div>
+                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(thread.messages[0].created_at).getMonth()]} {new Date(thread.messages[0].created_at).getDate()}</div>
 
                                     )}
                                     {thread.messages?.map((message, index, elements) => (
@@ -93,9 +93,9 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                                                 </div>
                                             </div>
                                             {elements[index + 1] && (
-                                                new Date(elements[index].created_at).getDay() < new Date(elements[index + 1].created_at).getDay() ?
+                                                new Date(elements[index].created_at).getDate() < new Date(elements[index + 1].created_at).getDate() ?
                                                     (
-                                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDay()}</div>
+                                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDate()}</div>
 
                                                     ) : null
                                             )}
@@ -113,25 +113,27 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                     </div>
                 </>)}
             </div>
-            <div className="relative flex items-center self-center w-full max-w-xl p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
-                <div className="w-full">
+            {thread && (
+                <div className="relative flex items-center self-center w-full max-w-xl p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
+                    <div className="w-full">
 
-                    <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
-                        <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
-                            <PaperAirplaneIcon className='h-6' />
-                        </button>
-                    </span>
-                    <input
-                        type="search"
-                        className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
-                        style={{ borderRadius: "25px" }}
-                        placeholder="Message..."
-                        autoComplete="off"
-                        value={messageValue}
-                        onChange={(e) => setMessageValue(e.target.value)}
-                        onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                        <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
+                            <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
+                                <PaperAirplaneIcon className='h-6' />
+                            </button>
+                        </span>
+                        <input
+                            type="search"
+                            className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
+                            style={{ borderRadius: "25px" }}
+                            placeholder="Message..."
+                            autoComplete="off"
+                            value={messageValue}
+                            onChange={(e) => setMessageValue(e.target.value)}
+                            onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     )
 }

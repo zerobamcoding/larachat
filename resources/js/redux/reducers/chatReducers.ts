@@ -51,9 +51,18 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
         case ChatsType.CHATS_ADD_MESSAGE:
             if (state.threads) {
                 const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id)
-                const newThread: Direct = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
-                const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
-                return { loading: false, threads: [newThread, ...oldThreads] }
+
+                if (editedThread >= 0) {
+                    //@ts-ignore
+                    const newThread: Direct = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
+                    const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
+                    return { loading: false, threads: [newThread, ...oldThreads] }
+                } else {
+                    if (action.payload.message) {
+                        const newThread: Direct = { ...action.payload.message?.messageable, "messages": [action.payload.message] }
+                        return { loading: false, threads: [newThread, ...state.threads] }
+                    }
+                }
             }
 
         case ChatsType.CHATS_ERROR:

@@ -45,7 +45,9 @@ class ChatController extends Controller
                 "message" => $request->message,
                 "sender" => $user->id,
             ]);
-            event(new SentDirectProcessed($message, $request->to));
+            event(new SentDirectProcessed($message->load(["messageable" => function ($query) {
+                return $query->with(['userone', 'usertwo']);
+            }]), $request->to));
             return ["success" => true, "message" => $message];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];
@@ -75,7 +77,7 @@ class ChatController extends Controller
             $direct->save();
             return $direct;
         }
-
+        $conversation->touch();
         return $conversation;
     }
 
@@ -97,7 +99,7 @@ class ChatController extends Controller
          * @var User $user
          */
         $user = Auth::user();
-        $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["userone", "usertwo"])
+        $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["userone", "usertwo"])->orderByDesc('updated_at')
             ->get();
 
 

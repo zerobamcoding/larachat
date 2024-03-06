@@ -9,7 +9,7 @@ import { User } from '@/redux/types/user'
 import { Direct } from '@/redux/types/chat'
 
 const Base = () => {
-    const { getMeAction, getThreads } = useActions();
+    const { getMeAction, getThreads, addMessage } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
     const { threads } = useTypedSelector(state => state.threads)
@@ -32,7 +32,7 @@ const Base = () => {
         if (user) {
 
             window.Echo.private(`user.${user.id}`).listen(".new-message", (e: any) => {
-                console.log(e);
+                addMessage(e.message)
             })
         }
 

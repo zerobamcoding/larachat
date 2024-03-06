@@ -29,6 +29,7 @@ export interface Message {
     pinned: boolean
     sender: number
     messageable_id: number
+    messageable: Direct
     replied?: number
     type: "text" | "file"
     created_at: Date
