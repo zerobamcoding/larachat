@@ -15,8 +15,9 @@ interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
     selectThread: React.Dispatch<React.SetStateAction<Direct | User | null>>
+    typingThreads: number[]
 }
-const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread }) => {
+const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typingThreads }) => {
     const { searchUser } = useActions();
     const { user } = useTypedSelector(state => state.me)
     const { users: searchedUsers } = useTypedSelector(state => state.search)
@@ -219,7 +220,12 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread }) =
                                                 </div>
                                             </div>
                                             <div className="flex justify-between text-sm leading-none truncate">
-                                                <span>{th.messages && th.messages[th.messages.length - 1].message}</span>
+                                                {typingThreads.includes(th.id) ? (
+                                                    <span className='text-gray-500'>is typing...</span>
+
+                                                ) : (
+                                                    <span>{th.messages && th.messages[th.messages.length - 1].message}</span>
+                                                )}
                                                 {/* <span className="flex items-center justify-center w-5 h-5 text-xs text-right text-white bg-green-500 rounded-full">2</span> */}
                                             </div>
                                         </div>

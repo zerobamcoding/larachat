@@ -37,7 +37,42 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
         }
         setMessageValue("")
     }
+    const [isTyping, setIsTyping] = useState(false)
+    useEffect(() => {
+        if (messageValue) {
+            let timeout = null
+            setIsTyping(true)
 
+            const later = () => {
+                setIsTyping(false)
+                timeout = null
+                stopWhispering()
+            }
+            if (!timeout) {
+                timeout = setTimeout(later, 5000)
+            }
+        }
+    }, [messageValue])
+
+    useEffect(() => {
+        if (me && thread) {
+            //@ts-ignore
+            const contactID = me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id
+            if (isTyping) {
+                window.Echo.private(`user.${contactID}`).whisper('typing', { thread: thread.id, typing: true })
+            }
+        }
+    }, [isTyping, me, thread])
+
+    const stopWhispering = () => {
+        if (me && thread) {
+            //@ts-ignore
+            const contactID = me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id
+            if (isTyping) {
+                window.Echo.private(`user.${contactID}`).whisper('typing', { thread: thread.id, typing: false })
+            }
+        }
+    }
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">

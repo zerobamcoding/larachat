@@ -8,6 +8,10 @@ import { useActions } from '@/hooks/useActions'
 import { User } from '@/redux/types/user'
 import { Direct } from '@/redux/types/chat'
 
+interface TypingThreadTypes {
+    thread: number
+    typing: boolean
+}
 const Base = () => {
     const { getMeAction, getThreads, addMessage } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
@@ -31,13 +35,23 @@ const Base = () => {
     useEffect(() => {
         if (user) {
 
-            window.Echo.private(`user.${user.id}`).listen(".new-message", (e: any) => {
-                addMessage(e.message)
-            })
+            window.Echo.private(`user.${user.id}`)
+                .listen(".new-message", (e: any) => { addMessage(e.message) })
+                .listenForWhisper("typing", (e: TypingThreadTypes) => { typingThreadHandler(e) })
         }
 
     }, [user])
-
+    const [typingThreads, setTypingThreads] = useState<number[]>([])
+    const typingThreadHandler = (e: TypingThreadTypes) => {
+        if (e.typing) {
+            setTypingThreads([...typingThreads, e.thread])
+        } else {
+            setTypingThreads(typingThreads.filter(th => th !== e.thread))
+        }
+    }
+    useEffect(() => {
+        console.log(typingThreads);
+    }, [typingThreads])
     useEffect(() => {
         const theme = isDark ? "dark" : "light"
         localStorage.setItem("theme", theme)
@@ -52,7 +66,7 @@ const Base = () => {
 
     return (
         <div className="relative flex w-full h-screen overflow-hidden antialiased bg-gray-200">
-            <ThreadsList dark={isDark} changeTheme={setIsDark} selectThread={setSelectedThread} />
+            <ThreadsList dark={isDark} changeTheme={setIsDark} selectThread={setSelectedThread} typingThreads={typingThreads} />
 
             <Messages thread={selectedThread} />
 
