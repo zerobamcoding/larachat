@@ -1,6 +1,8 @@
-![ZerobamCoding](./logo.jpg)
+![ZerobamCoding](./banner1.png)
 
 # Larachat
+**Realtime messageing app with Laravel React Inertia**
+
 - Full Typescript
 
 please follow the guide
@@ -43,3 +45,7 @@ php artisan serve
 - React
 - Redux
 - Typescript
+
+
+## Youtube Playlist Link
+https://www.youtube.com/playlist?list=PLVN1grR_40q_A3A6nXNWb5rb_IujBQTJb
