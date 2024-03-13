@@ -22,16 +22,17 @@ export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, 
 }
 
 
-interface MessageData {
-    to: number;
-    message: string
-    replied?: number
-}
-export const sendMessage = (messageDate: MessageData) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+
+export const sendMessage = (messageDate: FormData) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
     dispatch({ type: ChatsType.CHATS_LOADING })
 
     try {
-        const { data }: { data: SentMessageResponse } = await apiClient.post(route("chat.send"), messageDate)
+        const config = {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        }
+        const { data }: { data: SentMessageResponse } = await apiClient.post(route("chat.send"), messageDate, config)
         if (data && !data.success && data.errors) {
             dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
             return

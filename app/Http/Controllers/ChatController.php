@@ -8,6 +8,7 @@ use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class ChatController extends Controller
@@ -31,7 +32,8 @@ class ChatController extends Controller
         $validator = Validator::make($request->all(), [
             "to" => "required|exists:users,id",
             "message" => "required|string",
-            "replied" => "sometimes|exists:messages,id"
+            "replied" => "sometimes|exists:messages,id",
+            "files" => "sometimes"
         ]);
         if ($validator->fails()) {
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
@@ -41,9 +43,20 @@ class ChatController extends Controller
             $to = User::find($request->to);
 
             $conversation = $this->getConversation($user, $to);
+            $files = $request->file("files");
+            $urls = [];
+            if ($request->hasFile("files")) {
+                foreach ($files as $file) {
+                    $name = $file->hashName();
+                    $uploaded = $file->storePubliclyAs("messages", $name, "public");
+                    $urls[] = $uploaded;
+                }
+            }
             $message = $conversation->messages()->create([
                 "message" => $request->message,
                 "sender" => $user->id,
+                "type" => $request->type ?? "text",
+                "files" => count($urls) ? implode(",", $urls) : null
             ]);
             event(new SentDirectProcessed($message->load(["messageable" => function ($query) {
                 return $query->with(['userone', 'usertwo']);

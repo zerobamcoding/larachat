@@ -30,6 +30,7 @@ export interface Message {
     sender: number
     messageable_id: number
     messageable: Direct
+    files: string | null
     replied?: number
     type: "text" | "file"
     created_at: Date

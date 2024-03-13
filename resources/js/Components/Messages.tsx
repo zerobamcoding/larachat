@@ -1,9 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon } from '@heroicons/react/24/outline'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon, PaperClipIcon } from '@heroicons/react/24/outline'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
 import { Direct } from '@/redux/types/chat'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
+import Modal from '@/utils/Modal'
+import SendFile from './Modals/SendFile'
 interface PageProps {
     thread: User | Direct | null
 }
@@ -12,6 +14,11 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage } = useActions()
     const [messageValue, setMessageValue] = useState("")
+    const [files, setFiles] = useState<File[]>([])
+    const fileRef = useRef<HTMLInputElement>(null)
+    const [isOpenFileModal, setIsOpenFileModal] = useState(false)
+    const [caption, setCaption] = useState("")
+    const [isTyping, setIsTyping] = useState(false)
 
     const isAnUser = (obj: any): obj is User => {
         return "username" in obj;
@@ -26,18 +33,30 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
     }, [])
 
     useEffect(() => { scrollToBottom() }, [thread])
+
     const sendMessageHandler = () => {
+        const formData = new FormData();
+
+        if (files.length) {
+            files.map((file: File) => {
+                formData.append("files[]", file, file.name)
+            })
+            formData.append("type", "file")
+        }
+
         if (isAnUser(thread)) {
-            sendMessage({ to: thread.id, message: messageValue })
+            formData.append("to", thread.id.toString())
         } else {
 
             if (thread && me) {
-                sendMessage({ to: me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id, message: messageValue })
+                formData.append("to", me.id === thread.userone.id ? thread.usertwo.id.toString() : thread.userone.id.toString())
             }
         }
+        formData.append("message", caption.length ? caption : messageValue)
+        sendMessage(formData)
         setMessageValue("")
+        closeModal()
     }
-    const [isTyping, setIsTyping] = useState(false)
     useEffect(() => {
         if (messageValue) {
             let timeout = null
@@ -59,6 +78,7 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
             //@ts-ignore
             const contactID = me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id
             if (isTyping) {
+                //@ts-ignore
                 window.Echo.private(`user.${contactID}`).whisper('typing', { thread: thread.id, typing: true })
             }
         }
@@ -69,9 +89,24 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
             //@ts-ignore
             const contactID = me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id
             if (isTyping) {
+                //@ts-ignore
                 window.Echo.private(`user.${contactID}`).whisper('typing', { thread: thread.id, typing: false })
             }
         }
+    }
+
+    const changeFilesHandler = (e: ChangeEvent<HTMLInputElement>) => {
+        const { files } = e.target
+        if (files && files[0]) {
+            setFiles([...files])
+            setIsOpenFileModal(true)
+        }
+    }
+
+    const closeModal = () => {
+        setCaption("")
+        setIsOpenFileModal(false)
+        setFiles([])
     }
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return (
@@ -117,24 +152,42 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
 
                                     )}
                                     {thread.messages?.map((message, index, elements) => (
-                                        <>
+                                        <div key={message.id}>
+                                            {message.type === "text" ? (
 
-                                            <div key={message.id} className={`flex flex-row rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
-                                                <div className={`p-4 text-sm `}>
-                                                    {message.message}
+                                                <div className={`flex flex-row rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                    <div className={`p-4 text-sm `}>
+                                                        {message.message}
+                                                    </div>
+                                                    <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                        <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                    </div>
                                                 </div>
-                                                <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
-                                                    <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                            ) : (
+                                                <div className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                    {message.files?.split(",").map(img => (
+
+                                                        <img className='p-2' src={`storage/${img}`} alt={'message file Type'} />
+                                                    ))}
+                                                    <div className='flex flex-row w-full'>
+
+                                                        <div className={`p-4 text-sm w-full`}>
+                                                            {message.message}
+                                                        </div>
+                                                        <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                            <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            )}
                                             {elements[index + 1] && (
                                                 new Date(elements[index].created_at).getDate() < new Date(elements[index + 1].created_at).getDate() ?
                                                     (
-                                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDate()}</div>
+                                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm w-fit text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDate()}</div>
 
                                                     ) : null
                                             )}
-                                        </>
+                                        </div>
                                     ))}
                                 </>
                             )}
@@ -149,26 +202,43 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                 </>)}
             </div>
             {thread && (
-                <div className="relative flex items-center self-center w-full max-w-xl p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
-                    <div className="w-full">
+                <div className='flex items-center self-center w-full max-w-xl'>
+                    <div className="relative flex w-full p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
+                        <div className="w-full">
 
-                        <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
-                            <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
-                                <PaperAirplaneIcon className='h-6' />
-                            </button>
-                        </span>
-                        <input
-                            type="search"
-                            className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
-                            style={{ borderRadius: "25px" }}
-                            placeholder="Message..."
-                            autoComplete="off"
-                            value={messageValue}
-                            onChange={(e) => setMessageValue(e.target.value)}
-                            onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                            <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
+                                <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
+                                    <PaperAirplaneIcon className='h-6' />
+                                </button>
+                            </span>
+                            <input
+                                type="search"
+                                className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
+                                style={{ borderRadius: "25px" }}
+                                placeholder="Message..."
+                                autoComplete="off"
+                                value={messageValue}
+                                onChange={(e) => setMessageValue(e.target.value)}
+                                onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                        </div>
                     </div>
+                    <div className='rounded-full p-3 cursor-pointer bg-sky-400 text-white'
+                        onClick={() => fileRef.current?.click()}
+                    >
+                        <PaperClipIcon className='h-5' />
+                    </div>
+                    <input
+                        type="file"
+                        className='hidden'
+                        ref={fileRef}
+                        onChange={changeFilesHandler}
+                        onClick={(e) => (e.target as HTMLInputElement).value = ""}
+                        multiple />
                 </div>
             )}
+            <Modal show={isOpenFileModal} close={closeModal}>
+                <SendFile close={closeModal} files={files} caption={caption} setCaption={setCaption} send={sendMessageHandler} />
+            </Modal>
         </div>
     )
 }
