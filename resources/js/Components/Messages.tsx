@@ -1,15 +1,20 @@
 import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon, PaperClipIcon } from '@heroicons/react/24/outline'
+import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
-import { Direct } from '@/redux/types/chat'
+import { Direct, Message } from '@/redux/types/chat'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import Modal from '@/utils/Modal'
 import SendFile from './Modals/SendFile'
 interface PageProps {
     thread: User | Direct | null
+    showCTXMenu: (v: boolean) => void
+    changeMenuPosition: (v: { x: number, y: number }) => void
+    selectedMessageCTX: (v: Message) => void
+    reply: Message | null
+    removeReply: () => void
 }
-const Messages: React.FC<PageProps> = ({ thread }) => {
+const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage } = useActions()
@@ -53,9 +58,11 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
             }
         }
         formData.append("message", caption.length ? caption : messageValue)
+        reply ? formData.append("reply", reply.id.toString()) : null
         sendMessage(formData)
         setMessageValue("")
         closeModal()
+        removeReply();
     }
     useEffect(() => {
         if (messageValue) {
@@ -108,6 +115,13 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
         setIsOpenFileModal(false)
         setFiles([])
     }
+
+    const showMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, message: Message) => {
+        e.preventDefault()
+        changeMenuPosition({ x: e.pageX, y: e.pageY });
+        selectedMessageCTX(message)
+        showCTXMenu(true)
+    }
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
@@ -152,19 +166,27 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
 
                                     )}
                                     {thread.messages?.map((message, index, elements) => (
-                                        <div key={message.id}>
+                                        <React.Fragment key={message.id}>
                                             {message.type === "text" ? (
 
-                                                <div className={`flex flex-row rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
-                                                    <div className={`p-4 text-sm `}>
-                                                        {message.message}
-                                                    </div>
-                                                    <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
-                                                        <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                    {message.replied && (
+                                                        <div className='bg-slate-100 p-2 mx-2 mt-1 border-l-2 border-sky-400 rounded-md cursor-pointer'>
+                                                            <p className='text-xs font-extralight'>{message.replied.message}</p>
+                                                        </div>
+                                                    )}
+                                                    <div className='flex flex-row'>
+
+                                                        <div className={`p-4 text-sm `}>
+                                                            {message.message}
+                                                        </div>
+                                                        <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                            <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <div className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
                                                     {message.files?.split(",").map(img => (
 
                                                         <img className='p-2' src={`storage/${img}`} alt={'message file Type'} />
@@ -187,7 +209,7 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
 
                                                     ) : null
                                             )}
-                                        </div>
+                                        </React.Fragment>
                                     ))}
                                 </>
                             )}
@@ -202,44 +224,60 @@ const Messages: React.FC<PageProps> = ({ thread }) => {
                 </>)}
             </div>
             {thread && (
-                <div className='flex items-center self-center w-full max-w-xl'>
-                    <div className="relative flex w-full p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
-                        <div className="w-full">
-
-                            <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
-                                <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
-                                    <PaperAirplaneIcon className='h-6' />
-                                </button>
-                            </span>
-                            <input
-                                type="search"
-                                className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
-                                style={{ borderRadius: "25px" }}
-                                placeholder="Message..."
-                                autoComplete="off"
-                                value={messageValue}
-                                onChange={(e) => setMessageValue(e.target.value)}
-                                onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                <>
+                    {reply && (
+                        <div className='w-full max-w-xl flex flex-row self-center bg-slate-50 p-4 rounded-xl'>
+                            <div className='w-full'>
+                                <span className='text-gray-400'>Replying | </span>
+                                <span>{reply.message}</span>
+                            </div>
+                            <div
+                                className='cursor-pointer hover:text-red-600 duration-300'
+                                onClick={() => removeReply()}>
+                                <XMarkIcon className='h-5' />
+                            </div>
                         </div>
+                    )}
+                    <div className='flex items-center self-center w-full max-w-xl'>
+                        <div className="relative flex w-full p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
+                            <div className="w-full">
+
+                                <span className="absolute inset-y-0 right-0 flex items-center pr-6" onClick={sendMessageHandler}>
+                                    <button type="submit" className="p-1 focus:outline-none focus:shadow-none hover:text-blue-500">
+                                        <PaperAirplaneIcon className='h-6' />
+                                    </button>
+                                </span>
+                                <input
+                                    type="search"
+                                    className="w-full py-2 pl-10 text-sm bg-white border border-transparent appearance-none rounded-tg placeholder-gray-800 focus:bg-white focus:outline-none focus:border-blue-500 focus:text-gray-900 focus:shadow-outline-blue"
+                                    style={{ borderRadius: "25px" }}
+                                    placeholder="Message..."
+                                    autoComplete="off"
+                                    value={messageValue}
+                                    onChange={(e) => setMessageValue(e.target.value)}
+                                    onKeyDown={e => { if (e.key === "Enter") sendMessageHandler() }} />
+                            </div>
+                        </div>
+                        <div className='rounded-full p-3 cursor-pointer bg-sky-400 text-white'
+                            onClick={() => fileRef.current?.click()}
+                        >
+                            <PaperClipIcon className='h-5' />
+                        </div>
+                        <input
+                            type="file"
+                            className='hidden'
+                            ref={fileRef}
+                            onChange={changeFilesHandler}
+                            onClick={(e) => (e.target as HTMLInputElement).value = ""}
+                            multiple />
                     </div>
-                    <div className='rounded-full p-3 cursor-pointer bg-sky-400 text-white'
-                        onClick={() => fileRef.current?.click()}
-                    >
-                        <PaperClipIcon className='h-5' />
-                    </div>
-                    <input
-                        type="file"
-                        className='hidden'
-                        ref={fileRef}
-                        onChange={changeFilesHandler}
-                        onClick={(e) => (e.target as HTMLInputElement).value = ""}
-                        multiple />
-                </div>
-            )}
+                </>
+            )
+            }
             <Modal show={isOpenFileModal} close={closeModal}>
                 <SendFile close={closeModal} files={files} caption={caption} setCaption={setCaption} send={sendMessageHandler} />
             </Modal>
-        </div>
+        </div >
     )
 }
 

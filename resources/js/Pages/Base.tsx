@@ -6,7 +6,8 @@ import { router } from '@inertiajs/react'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import { useActions } from '@/hooks/useActions'
 import { User } from '@/redux/types/user'
-import { Direct } from '@/redux/types/chat'
+import { Direct, Message } from '@/redux/types/chat'
+import RightClickMenu from '@/Components/RightClickMenu'
 
 interface TypingThreadTypes {
     thread: number
@@ -19,7 +20,10 @@ const Base = () => {
     const { threads } = useTypedSelector(state => state.threads)
 
     const [selectedThread, setSelectedThread] = useState<User | Direct | null>(null)
-
+    const [isShowCTXMenu, setIsShowCTXMenu] = useState(false)
+    const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
+    const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
+    const [reply, setReply] = useState<Message | null>(null)
     useEffect(() => {
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
@@ -68,9 +72,24 @@ const Base = () => {
         <div className="relative flex w-full h-screen overflow-hidden antialiased bg-gray-200">
             <ThreadsList dark={isDark} changeTheme={setIsDark} selectThread={setSelectedThread} typingThreads={typingThreads} />
 
-            <Messages thread={selectedThread} />
+            <Messages
+                thread={selectedThread}
+                showCTXMenu={setIsShowCTXMenu}
+                changeMenuPosition={setPositionCTXMenu}
+                selectedMessageCTX={setSelectedMessageCTX}
+                reply={reply}
+                removeReply={() => setReply(null)}
+            />
 
             <UserInfo />
+            {isShowCTXMenu && selectedMessageCTX && (
+                <RightClickMenu
+                    position={positionCTXMenu}
+                    close={() => setIsShowCTXMenu(false)}
+                    message={selectedMessageCTX}
+                    reply={setReply}
+                />
+            )}
         </div>
     )
 }

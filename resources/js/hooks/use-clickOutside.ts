@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 
 export const clickOutside = (callback: () => void) => {
-    const ref = useRef<HTMLDivElement>(null)
+    const ref = useRef<HTMLDivElement | HTMLUListElement>(null)
 
     useEffect(() => {
         const clickedOutsideHandler = (e: MouseEvent) => {

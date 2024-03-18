@@ -17,4 +17,9 @@ class Message extends Model
     {
         return $this->morphTo();
     }
+
+    public function replied()
+    {
+        return $this->belongsTo(Message::class, "replied");
+    }
 }

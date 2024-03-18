@@ -26,6 +26,7 @@
     },
     "dependencies": {
         "@heroicons/react": "^2.0.18",
+        "@tabler/icons-react": "^3.0.2",
         "laravel-echo": "^1.16.0",
         "pusher-js": "^8.4.0-rc2",
         "react-redux": "^9.1.0",

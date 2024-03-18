@@ -33,7 +33,8 @@ class ChatController extends Controller
             "to" => "required|exists:users,id",
             "message" => "required|string",
             "replied" => "sometimes|exists:messages,id",
-            "files" => "sometimes"
+            "files" => "sometimes",
+            "reply" => "sometimes"
         ]);
         if ($validator->fails()) {
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
@@ -56,12 +57,13 @@ class ChatController extends Controller
                 "message" => $request->message,
                 "sender" => $user->id,
                 "type" => $request->type ?? "text",
-                "files" => count($urls) ? implode(",", $urls) : null
+                "files" => count($urls) ? implode(",", $urls) : null,
+                "replied" => $request->reply ?? null
             ]);
             event(new SentDirectProcessed($message->load(["messageable" => function ($query) {
                 return $query->with(['userone', 'usertwo']);
             }]), $request->to));
-            return ["success" => true, "message" => $message];
+            return ["success" => true, "message" => $message->load(["replied"])];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];
         }
@@ -98,6 +100,7 @@ class ChatController extends Controller
     {
         return $direct
             ->messages()
+            ->with(['replied'])
             ->latest()
             ->offset($offset)
             ->take($take)
