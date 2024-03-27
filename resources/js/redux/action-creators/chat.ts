@@ -56,6 +56,24 @@ export const addMessage = (message: Message) => async (dispatch: ThunkDispatch<{
     }
 }
 
+export const pinMessage = (id: number, pin: boolean) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: SentMessageResponse } = await apiClient.post(route("chat.pin"), { id, pin })
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
+            return
+        }
+
+        dispatch({ type: ChatsType.CHATS_PIN_MESSAGE, payload: data })
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
 export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
     dispatch({ type: ChatsType.CHATS_LOADING })
 

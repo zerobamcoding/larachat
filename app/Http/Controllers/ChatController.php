@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\SentDirectProcessed;
 use App\Models\Direct;
+use App\Models\Message;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -129,5 +130,25 @@ class ChatController extends Controller
         // ->toArray();
 
         return ["success" => true, "threads" => $threads];
+    }
+
+    public function pinMessage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "id" => "required|exists:messages,id",
+            "pin" => "required|boolean",
+
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false, "errors" => $validator->errors()->getMessages()];
+        }
+        try {
+            $message = Message::find($request->id);
+            $message->pinned = $request->pin;
+            $message->save();
+            return ["success" => true, "message" => $message->refresh()->load(['replied'])];
+        } catch (Exception $e) {
+            return ["success" => false, "errors" => $e];
+        }
     }
 }

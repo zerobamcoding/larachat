@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react'
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
@@ -29,15 +29,26 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         return "username" in obj;
     }
 
-    const scrollToBottom = () => {
+    const scrollToView = (ref: any) => {
         ref.current?.scrollIntoView({ behavior: "smooth", block: "end" })
     }
 
     useEffect(() => {
-        scrollToBottom()
+        scrollToView(ref)
     }, [])
-
-    useEffect(() => { scrollToBottom() }, [thread])
+    const [pinnedMessages, setPinnedMessages] = useState<Message[]>([])
+    const [shownPinnedMessage, setShownPinnedMessage] = useState<Message | null>(null)
+    useEffect(() => {
+        if (thread && !isAnUser(thread)) {
+            const pinned: Message[] = []
+            thread.messages?.map(m => {
+                m.pinned ? pinned.push(m) : null
+            })
+            setShownPinnedMessage(pinned[pinned.length - 1])
+            setPinnedMessages(pinned)
+        }
+        scrollToView(ref)
+    }, [thread])
 
     const sendMessageHandler = () => {
         const formData = new FormData();
@@ -122,7 +133,26 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         selectedMessageCTX(message)
         showCTXMenu(true)
     }
+
+    const refsById = useMemo(() => {
+        const refs: any = {}
+        pinnedMessages.forEach(item => {
+            refs[item.id] = React.createRef()
+        })
+        return refs
+    }, [pinnedMessages])
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const showPinnedMessageHandler = () => {
+        if (shownPinnedMessage) {
+            scrollToView(refsById[shownPinnedMessage.id])
+            const pIndex = pinnedMessages.findIndex(p => p.id === shownPinnedMessage.id)
+            if (pIndex > 0) {
+                setShownPinnedMessage(pinnedMessages[pIndex - 1])
+            } else if (pIndex === 0) {
+                setShownPinnedMessage(pinnedMessages[pinnedMessages.length - 1])
+            }
+        }
+    }
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
             {thread && (
@@ -135,10 +165,13 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                         <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap">Karen</div>
                         <div className="overflow-hidden text-sm font-medium leading-tight  whitespace-no-wrap">Online</div>
                     </div>
-                    <div className="relative w-48 pl-2 my-3 border-l-2 border-blue-500 cursor-pointer lg:block">
-                        <div className="text-base font-medium text-blue-500">Pinned message</div>
-                        <div className="text-sm font-normal ">Today star contest</div>
-                    </div>
+                    {shownPinnedMessage ? (
+
+                        <div className="relative w-48 pl-2 my-3 border-l-2 border-blue-500 cursor-pointer lg:block" onClick={showPinnedMessageHandler}>
+                            <div className="text-base font-medium text-blue-500">Pinned message</div>
+                            <div className="text-sm font-normal ">{shownPinnedMessage.message}</div>
+                        </div>
+                    ) : null}
                     <button className="flex self-center p-2 ml-2  rounded-full focus:outline-none hover:text-gray-600 dark:hover:text-black hover:bg-gray-300">
                         <BellSlashIcon className='h-6' />
                     </button>
@@ -153,7 +186,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                     </button>
                 </div>
             )}
-            <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-y-scroll dark:bg-slate-800 bg-bottom bg-cover">
+            <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-y-scroll no-scrollbar dark:bg-slate-800 bg-bottom bg-cover">
                 {thread && (<>
 
                     <div className="self-center flex-1 w-full max-w-xl">
@@ -187,9 +220,9 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                 </div>
                                             ) : (
                                                 <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
-                                                    {message.files?.split(",").map(img => (
+                                                    {message.files?.split(",").map((img, i) => (
 
-                                                        <img className='p-2' src={`storage/${img}`} alt={'message file Type'} />
+                                                        <img key={i} className='p-2' src={`storage/${img}`} alt={'message file Type'} />
                                                     ))}
                                                     <div className='flex flex-row w-full'>
 
@@ -202,6 +235,9 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                     </div>
                                                 </div>
                                             )}
+                                            {message.pinned ? (
+                                                <div ref={refsById[message.id]} />
+                                            ) : null}
                                             {elements[index + 1] && (
                                                 new Date(elements[index].created_at).getDate() < new Date(elements[index + 1].created_at).getDate() ?
                                                     (

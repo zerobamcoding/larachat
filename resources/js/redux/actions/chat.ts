@@ -35,6 +35,11 @@ interface getThreadsSuccess {
     type: ChatsType.CHATS_GET_THREADS
     payload: ThreadsResponse
 }
+
+interface pinMessageSuccess {
+    type: ChatsType.CHATS_PIN_MESSAGE
+    payload: SentMessageResponse
+}
 interface ChatsError {
     type: ChatsType.CHATS_ERROR
     payload: { errors: ValidationErrors }
@@ -44,5 +49,6 @@ export type ChatsActions =
     ChatsLoading |
     getThreadsSuccess |
     SendMessageSuccess |
+    pinMessageSuccess |
     ChatsError
 

@@ -1,5 +1,5 @@
 import React from 'react'
-import { IconCornerUpRight, IconClipboardCopy, IconX, IconPin, IconEdit } from "@tabler/icons-react"
+import { IconCornerUpRight, IconClipboardCopy, IconX, IconPin, IconEdit, IconPinnedOff } from "@tabler/icons-react"
 import { clickOutside } from '@/hooks/use-clickOutside'
 import { Message } from '@/redux/types/chat'
 interface PageProps {
@@ -7,8 +7,9 @@ interface PageProps {
     position: { x: number, y: number }
     message: Message
     reply: (v: Message) => void
+    pin: (v: Message, p: boolean) => void
 }
-const RightClickMenu: React.FC<PageProps> = ({ close, position, message, reply }) => {
+const RightClickMenu: React.FC<PageProps> = ({ close, position, message, reply, pin }) => {
     const ref = clickOutside(close)
     return (
         <ul
@@ -34,10 +35,24 @@ const RightClickMenu: React.FC<PageProps> = ({ close, position, message, reply }
                 <IconEdit className='h-4' />
                 <p>Edit message</p>
             </li>
-            <li className='w-full hover:bg-slate-600 p-2 px-3 flex items-center space-x-5 cursor-default'>
-                <IconPin className='h-4' />
-                <p>Pin message</p>
-            </li>
+            {message.pinned ? (
+
+                <li
+                    onClick={() => { pin(message, false); close(); }}
+                    className='w-full hover:bg-slate-600 p-2 px-3 flex items-center space-x-5 cursor-default'
+                >
+                    <IconPinnedOff className='h-4' />
+                    <p>Unpin message</p>
+                </li>
+            ) : (
+                <li
+                    onClick={() => { pin(message, true); close(); }}
+                    className='w-full hover:bg-slate-600 p-2 px-3 flex items-center space-x-5 cursor-default'
+                >
+                    <IconPin className='h-4' />
+                    <p>Pin message</p>
+                </li>
+            )}
             <li className='w-full hover:bg-slate-600 p-2 px-3 flex items-center space-x-5 cursor-default'>
                 <IconX className='h-4' />
                 <p>Unsend</p>

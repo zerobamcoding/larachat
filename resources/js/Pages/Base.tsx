@@ -14,7 +14,7 @@ interface TypingThreadTypes {
     typing: boolean
 }
 const Base = () => {
-    const { getMeAction, getThreads, addMessage } = useActions();
+    const { getMeAction, getThreads, addMessage, pinMessage } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
     const { threads } = useTypedSelector(state => state.threads)
@@ -27,9 +27,15 @@ const Base = () => {
     useEffect(() => {
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
-            setSelectedThread(updateSelectedThred)
+            console.log("threads Updated");
+
+            setSelectedThread({ ...selectedThread, messages: updateSelectedThred.messages })
         }
     }, [threads])
+
+    useEffect(() => {
+        console.log("selectedThread Updated");
+    }, [selectedThread])
 
     useEffect(() => {
         if (!user) getMeAction();
@@ -67,6 +73,9 @@ const Base = () => {
 
     }, [isDark])
 
+    const pinMessageHandler = (message: Message, pin: boolean) => {
+        pinMessage(message.id, pin);
+    }
 
     return (
         <div className="relative flex w-full h-screen overflow-hidden antialiased bg-gray-200">
@@ -88,6 +97,7 @@ const Base = () => {
                     close={() => setIsShowCTXMenu(false)}
                     message={selectedMessageCTX}
                     reply={setReply}
+                    pin={pinMessageHandler}
                 />
             )}
         </div>

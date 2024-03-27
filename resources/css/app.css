@@ -7,6 +7,19 @@
     .input-theme {
         @apply border-0 border-b-2 focus:border-b-[3px] bg-transparent focus:border-green-400 focus:ring-0 dark:border-slate-700 dark:bg-transparent dark:focus:border-green-400 dark:text-white selection:bg-transparent caret-green-400;
     }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
 }
 
 input {

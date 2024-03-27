@@ -64,7 +64,17 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                     }
                 }
             }
+        case ChatsType.CHATS_PIN_MESSAGE:
+            if (state.threads) {
+                const threads = [...state.threads]
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id)
 
+                if (editedThread >= 0) {
+                    const updatedMessage = state.threads[editedThread].messages?.map(m => { if (m.id === action.payload.message?.id) { return action.payload.message } else { return m } })
+                    threads[editedThread].messages = updatedMessage
+                    return { loading: false, threads }
+                }
+            }
         case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
         default:
