@@ -6,6 +6,7 @@ import { Direct, Message } from '@/redux/types/chat'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import Modal from '@/utils/Modal'
 import SendFile from './Modals/SendFile'
+import Avatar from './Avatar'
 interface PageProps {
     thread: User | Direct | null
     showCTXMenu: (v: boolean) => void
@@ -13,8 +14,9 @@ interface PageProps {
     selectedMessageCTX: (v: Message) => void
     reply: Message | null
     removeReply: () => void
+    showInfo: () => void
 }
-const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply }) => {
+const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage } = useActions()
@@ -24,6 +26,11 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     const [isOpenFileModal, setIsOpenFileModal] = useState(false)
     const [caption, setCaption] = useState("")
     const [isTyping, setIsTyping] = useState(false)
+    const [pinnedMessages, setPinnedMessages] = useState<Message[]>([])
+    const [shownPinnedMessage, setShownPinnedMessage] = useState<Message | null>(null)
+    const [contact, setContact] = useState<User | null>(null)
+    const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 
     const isAnUser = (obj: any): obj is User => {
         return "username" in obj;
@@ -36,8 +43,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     useEffect(() => {
         scrollToView(ref)
     }, [])
-    const [pinnedMessages, setPinnedMessages] = useState<Message[]>([])
-    const [shownPinnedMessage, setShownPinnedMessage] = useState<Message | null>(null)
+
     useEffect(() => {
         if (thread && !isAnUser(thread)) {
             const pinned: Message[] = []
@@ -46,6 +52,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             })
             setShownPinnedMessage(pinned[pinned.length - 1])
             setPinnedMessages(pinned)
+            if (me) {
+                const contactObj = me.id === thread.userone.id ? thread.usertwo : thread.userone
+                setContact(contactObj)
+            }
         }
         scrollToView(ref)
     }, [thread])
@@ -64,8 +74,8 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             formData.append("to", thread.id.toString())
         } else {
 
-            if (thread && me) {
-                formData.append("to", me.id === thread.userone.id ? thread.usertwo.id.toString() : thread.userone.id.toString())
+            if (thread && contact) {
+                formData.append("to", contact.id.toString())
             }
         }
         formData.append("message", caption.length ? caption : messageValue)
@@ -94,10 +104,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     useEffect(() => {
         if (me && thread) {
             //@ts-ignore
-            const contactID = me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id
+
             if (isTyping) {
                 //@ts-ignore
-                window.Echo.private(`user.${contactID}`).whisper('typing', { thread: thread.id, typing: true })
+                window.Echo.private(`user.${contact?.id}`).whisper('typing', { thread: thread.id, typing: true })
             }
         }
     }, [isTyping, me, thread])
@@ -105,10 +115,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     const stopWhispering = () => {
         if (me && thread) {
             //@ts-ignore
-            const contactID = me.id === thread.userone.id ? thread.usertwo.id : thread.userone.id
+
             if (isTyping) {
                 //@ts-ignore
-                window.Echo.private(`user.${contactID}`).whisper('typing', { thread: thread.id, typing: false })
+                window.Echo.private(`user.${contact?.id}`).whisper('typing', { thread: thread.id, typing: false })
             }
         }
     }
@@ -141,7 +151,6 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         })
         return refs
     }, [pinnedMessages])
-    const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
     const showPinnedMessageHandler = () => {
         if (shownPinnedMessage) {
             scrollToView(refsById[shownPinnedMessage.id])
@@ -158,11 +167,17 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             {thread && (
 
                 <div className="z-20 flex flex-grow-0 flex-shrink-0 w-full pr-3  text-gray-600 dark:text-white">
-                    <div className="w-12 h-12 mx-4 my-2 bg-blue-500 bg-center bg-no-repeat bg-cover rounded-full cursor-pointer"
+                    {/* <div className="w-12 h-12  bg-blue-500 bg-center bg-no-repeat bg-cover rounded-full cursor-pointer"
                         style={{ backgroundImage: "url(https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=50)" }}>
-                    </div>
+                    </div> */}
+                    {contact && (
+                        <div className='mx-4 my-2'>
+
+                            <Avatar h={12} w={12} user={contact} />
+                        </div>
+                    )}
                     <div className="flex flex-col justify-center flex-1 overflow-hidden cursor-pointer">
-                        <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap">Karen</div>
+                        <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap first-letter:uppercase">{contact?.name ?? contact?.username}</div>
                         <div className="overflow-hidden text-sm font-medium leading-tight  whitespace-no-wrap">Online</div>
                     </div>
                     {shownPinnedMessage ? (
@@ -178,7 +193,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                     <button className="flex self-center p-2 ml-2 rounded-full focus:outline-none hover:text-gray-600 dark:hover:text-black hover:bg-gray-300">
                         <MagnifyingGlassIcon className='h-6' />
                     </button>
-                    <button type="button" className="flex self-center p-2 ml-2 rounded-full md:block focus:outline-none hover:text-gray-600 dark:hover:text-black hover:bg-gray-300">
+                    <button
+                        onClick={showInfo}
+                        type="button"
+                        className="flex self-center p-2 ml-2 rounded-full md:block focus:outline-none hover:text-gray-600 dark:hover:text-black hover:bg-gray-300">
                         <EllipsisVerticalIcon className='h-6' />
                     </button>
                     <button className="p-2 text-gray-700 flex self-center rounded-full md:hidden focus:outline-none hover:text-gray-600 dark:hover:text-black hover:bg-gray-200">
@@ -187,7 +205,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                 </div>
             )}
             <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-y-scroll no-scrollbar dark:bg-slate-800 bg-bottom bg-cover">
-                {thread && (<>
+                {thread ? (<>
 
                     <div className="self-center flex-1 w-full max-w-xl">
                         <div className="relative flex flex-col px-3 py-1 m-auto">
@@ -257,7 +275,11 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                             </div> */}
                         </div>
                     </div>
-                </>)}
+                </>) : (
+                    <div className='flex w-full h-full items-center justify-center dark:text-white select-none cursor-default'>
+                        <p>Select a Chat to start messaging</p>
+                    </div>
+                )}
             </div>
             {thread && (
                 <>

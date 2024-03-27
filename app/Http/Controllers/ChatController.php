@@ -146,7 +146,7 @@ class ChatController extends Controller
             $message = Message::find($request->id);
             $message->pinned = $request->pin;
             $message->save();
-            return ["success" => true, "message" => $message->refresh()->load(['replied'])];
+            return ["success" => true, "message" => $message->refresh()->load(["replied"])];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];
         }

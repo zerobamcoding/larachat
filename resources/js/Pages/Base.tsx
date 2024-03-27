@@ -24,18 +24,14 @@ const Base = () => {
     const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
     const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
     const [reply, setReply] = useState<Message | null>(null)
+    const [isShowUserInfo, setIsShowUserInfo] = useState(false)
     useEffect(() => {
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
-            console.log("threads Updated");
-
             setSelectedThread({ ...selectedThread, messages: updateSelectedThred.messages })
         }
     }, [threads])
 
-    useEffect(() => {
-        console.log("selectedThread Updated");
-    }, [selectedThread])
 
     useEffect(() => {
         if (!user) getMeAction();
@@ -88,9 +84,13 @@ const Base = () => {
                 selectedMessageCTX={setSelectedMessageCTX}
                 reply={reply}
                 removeReply={() => setReply(null)}
+                showInfo={() => setIsShowUserInfo(!isShowUserInfo)}
             />
 
-            <UserInfo />
+            {isShowUserInfo && (
+                <UserInfo thread={selectedThread} close={() => setIsShowUserInfo(false)} />
+            )}
+
             {isShowCTXMenu && selectedMessageCTX && (
                 <RightClickMenu
                     position={positionCTXMenu}

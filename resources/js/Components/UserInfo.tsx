@@ -1,11 +1,31 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { XMarkIcon, PencilIcon, EllipsisVerticalIcon, Bars3Icon, InformationCircleIcon, AtSymbolIcon, PhoneIcon } from '@heroicons/react/24/outline'
-
-const UserInfo = () => {
+import { User } from '@/redux/types/user'
+import { Direct } from '@/redux/types/chat'
+import Avatar from './Avatar'
+import { useTypedSelector } from '@/hooks/use-typed-selector'
+interface PageProps {
+    thread: User | Direct | null
+    close: () => void
+}
+const UserInfo: React.FC<PageProps> = ({ thread, close }) => {
+    const [userObject, setUserObject] = useState<User | null>(null)
+    const { user: me } = useTypedSelector(state => state.me)
+    const isAnUser = (obj: any): obj is User => {
+        return "username" in obj;
+    }
+    useEffect(() => {
+        if (thread && !isAnUser(thread) && me) {
+            me.id === thread.userone.id ? setUserObject(thread.usertwo) : setUserObject(thread.userone)
+        }
+    }, [thread])
     return (
         <nav className="right-0 flex flex-col pb-2 bg-white dark:bg-slate-800/90  text-black dark:text-white" style={{ width: "24rem" }}>
             <div className="flex items-center justify-between w-full p-3">
-                <button className="p-2 rounded-full focus:outline-none hover:text-gray-600 hover:bg-gray-200">
+                <button
+                    onClick={close}
+                    className="p-2 rounded-full focus:outline-none hover:text-gray-600 hover:bg-gray-200"
+                >
                     <XMarkIcon className='h-6' />
                 </button>
                 <div className="ml-4 mr-auto text-lg font-medium">Info</div>
@@ -18,11 +38,13 @@ const UserInfo = () => {
             </div>
             <div>
                 <div className="flex justify-center mb-4">
-                    <button type="button" className="content-center block w-32 h-32 p-1 overflow-hidden text-center rounded-full focus:outline-none">
+
+                    {userObject && <Avatar h={32} w={32} user={userObject} />}
+                    {/* <button type="button" className="content-center block w-32 h-32 p-1 overflow-hidden text-center rounded-full focus:outline-none">
                         <img className="content-center object-cover w-full h-full border-2 border-gray-200 rounded-full" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=50" alt="" />
-                    </button>
+                    </button> */}
                 </div>
-                <p className="text-lg font-semibold text-center ">Karen J.</p>
+                <p className="text-lg font-semibold text-center first-letter:uppercase">{userObject?.name ?? userObject?.username}</p>
                 <p className="text-sm font-medium text-center text-blue-500">online</p>
             </div>
             <div className="flex items-center w-full px-3 mt-6">
@@ -30,7 +52,7 @@ const UserInfo = () => {
                     <InformationCircleIcon className='h-6' />
                 </div>
                 <div className="ml-4">
-                    <div className="mr-auto text-sm font-semibold ">25 y.o traveler</div>
+                    <div className="mr-auto text-sm font-semibold ">{userObject?.description ?? "Not Set"}</div>
                     <div className="mt-1 mr-auto text-sm font-semibold leading-none ">Bio</div>
                 </div>
             </div>
@@ -40,7 +62,7 @@ const UserInfo = () => {
                         <AtSymbolIcon className='h-6' />
                     </div>
                     <div>
-                        <div className="ml-4 mr-auto text-sm font-semibold ">@karen</div>
+                        <div className="ml-4 mr-auto text-sm font-semibold ">@{userObject?.username}</div>
                         <div className="mt-1 ml-4 mr-auto text-sm font-semibold leading-none ">Username</div>
                     </div>
                 </div>
@@ -51,7 +73,7 @@ const UserInfo = () => {
                         <PhoneIcon className='h-6' />
                     </div>
                     <div className="ml-4">
-                        <div className="mr-auto text-sm font-semibold ">+1 38594 38538</div>
+                        <div className="mr-auto text-sm font-semibold ">{userObject?.mobile}</div>
                         <div className="mt-1 mr-auto text-sm font-semibold leading-none ">Phone</div>
                     </div>
                 </div>
