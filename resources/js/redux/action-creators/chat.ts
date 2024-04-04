@@ -1,6 +1,6 @@
 import { ThunkDispatch } from "redux-thunk";
-import { SearchUserActions, ChatsActions } from "../actions/chat";
-import { SearchUserType, ChatsType } from "../action-types/chat";
+import { SearchUserActions, ChatsActions, OnlineUsersActions } from "../actions/chat";
+import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
 import { Message, SentMessageResponse, ThreadsResponse } from "../types/chat";
@@ -88,4 +88,13 @@ export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActi
         console.log(error);
 
     }
+}
+
+
+export const addOnlineUsersAction = (data: number[]) => async (dispatch: ThunkDispatch<{}, {}, OnlineUsersActions>) => {
+    dispatch({ type: OnlineUsersType.ADD_ONLINE_USERS, payload: data })
+}
+
+export const removeOfflineUsersAction = (data: number[]) => async (dispatch: ThunkDispatch<{}, {}, OnlineUsersActions>) => {
+    dispatch({ type: OnlineUsersType.REMOVE_OFFLINE_USERS, payload: data })
 }

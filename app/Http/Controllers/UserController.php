@@ -2,14 +2,62 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\UserIsOnline;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Direct;
 
 class UserController extends Controller
 {
+    public function userIsOnline(Request $request)
+    {
+        try {
+            /**
+             * @var \App\Models\User $user
+             */
+            $user = Auth::user();
+            $user->is_online = true;
+            $user->save();
+            $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["userone", "usertwo"])->get();
+            foreach ($directs as $direct) {
+                $contact = $direct->userone->id === $user->id ? $direct->usertwo : $direct->userone;
+                if ($user->id !== $contact->id) {
+
+                    event(new UserIsOnline($user, $contact, true));
+                }
+            }
+            return ['success' => true];
+        } catch (Exception $e) {
+            return ['success' => false, "errors" => $e];
+        }
+    }
+
+    public function userIsOfline(Request $request)
+    {
+        try {
+            /**
+             * @var \App\Models\User $user
+             */
+            $user = Auth::user();
+            $user->is_online = false;
+            $user->save();
+            $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["userone", "usertwo"])->get();
+            foreach ($directs as $direct) {
+                $contact = $direct->userone->id === $user->id ? $direct->usertwo : $direct->userone;
+                if ($user->id !== $contact->id) {
+
+                    event(new UserIsOnline($user, $contact, false));
+                }
+            }
+            return ['success' => true];
+        } catch (Exception $e) {
+            return ['success' => false, "errors" => $e];
+        }
+    }
+
     public function getMe(Request $request)
     {
         try {

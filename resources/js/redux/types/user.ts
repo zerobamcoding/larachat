@@ -10,6 +10,7 @@ export interface User {
     avatar?: string
     mobile: number
     username: string
+    is_online: boolean
     created_at: Date
     updated_at: Date
 }

@@ -1,5 +1,5 @@
-import { SearchUserType, ChatsType } from "../action-types/chat";
-import { SearchUserActions, ChatsActions } from "../actions/chat";
+import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
+import { SearchUserActions, ChatsActions, OnlineUsersActions } from "../actions/chat";
 import { Direct } from "../types/chat";
 import { User, ValidationErrors } from "../types/user";
 
@@ -30,6 +30,34 @@ export const searchUserReducer = (state: SearchUserState = searchUserInit, actio
     }
 }
 
+
+interface OnlineUsersState {
+    users: number[]
+}
+
+const onlineUsersInit: OnlineUsersState = {
+    users: []
+}
+
+
+
+export const onlinesUsersReducer = (state: OnlineUsersState = onlineUsersInit, action: OnlineUsersActions) => {
+    switch (action.type) {
+        case OnlineUsersType.ADD_ONLINE_USERS:
+            return { users: [...state.users, ...action.payload] }
+        case OnlineUsersType.REMOVE_OFFLINE_USERS:
+            let newIds: number[] = []
+            state.users.map(u => {
+                if (!action.payload.includes(u)) {
+                    newIds.push(u)
+                }
+            })
+            return { users: newIds }
+
+        default:
+            return state
+    }
+}
 interface ChatsState {
     loading: boolean;
     threads: Direct[] | null

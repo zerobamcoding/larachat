@@ -7,8 +7,9 @@ import { useTypedSelector } from '@/hooks/use-typed-selector'
 interface PageProps {
     thread: User | Direct | null
     close: () => void
+    onlines: number[]
 }
-const UserInfo: React.FC<PageProps> = ({ thread, close }) => {
+const UserInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
     const [userObject, setUserObject] = useState<User | null>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const isAnUser = (obj: any): obj is User => {
@@ -45,7 +46,7 @@ const UserInfo: React.FC<PageProps> = ({ thread, close }) => {
                     </button> */}
                 </div>
                 <p className="text-lg font-semibold text-center first-letter:uppercase">{userObject?.name ?? userObject?.username}</p>
-                <p className="text-sm font-medium text-center text-blue-500">online</p>
+                <p className="text-sm font-medium text-center text-blue-500">{userObject && onlines.includes(userObject.id) ? "Online" : "Offline"}</p>
             </div>
             <div className="flex items-center w-full px-3 mt-6">
                 <div className="px-2 rounded-full hover:text-gray-600">

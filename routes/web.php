@@ -61,6 +61,8 @@ Route::controller(Authenticate::class)->prefix("auth")->name('auth.')->group(fun
 
 Route::controller(UserController::class)->prefix("user")->name('user.')->group(function () {
     Route::post('/me', 'getMe')->name("me")->middleware("auth:sanctum");
+    Route::post('/online', 'userIsOnline')->name("online")->middleware("auth:sanctum");
+    Route::post('/ofline', 'userIsOfline')->name("ofline")->middleware("auth:sanctum");
     Route::post('/avatar', 'changeAvatar')->name("avatar")->middleware("auth:sanctum");
     Route::patch('/update', 'update')->name("update")->middleware("auth:sanctum");
 });

@@ -1,4 +1,4 @@
-import { SearchUserType, ChatsType } from "../action-types/chat";
+import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
 import { SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { ThreadsList, ValidationErrors } from "../types/user";
 
@@ -52,3 +52,16 @@ export type ChatsActions =
     pinMessageSuccess |
     ChatsError
 
+
+interface AddOnlineUsers {
+    type: OnlineUsersType.ADD_ONLINE_USERS,
+    payload: number[]
+}
+
+interface RemoveOfflineUsers {
+    type: OnlineUsersType.REMOVE_OFFLINE_USERS,
+    payload: number[]
+}
+
+export type OnlineUsersActions = AddOnlineUsers |
+    RemoveOfflineUsers

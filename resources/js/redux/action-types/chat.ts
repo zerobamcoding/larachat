@@ -12,3 +12,8 @@ export enum ChatsType {
     CHATS_PIN_MESSAGE = "CHATS_PIN_MESSAGE",
     CHATS_ERROR = "CHATS_ERROR"
 }
+
+export enum OnlineUsersType {
+    ADD_ONLINE_USERS = "ADD_ONLINE_USERS",
+    REMOVE_OFFLINE_USERS = "REMOVE_OFFLINE_USERS",
+}

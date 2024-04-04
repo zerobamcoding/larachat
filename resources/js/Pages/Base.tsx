@@ -8,16 +8,18 @@ import { useActions } from '@/hooks/useActions'
 import { User } from '@/redux/types/user'
 import { Direct, Message } from '@/redux/types/chat'
 import RightClickMenu from '@/Components/RightClickMenu'
+import apiClient from '@/libs/apiClient'
 
 interface TypingThreadTypes {
     thread: number
     typing: boolean
 }
 const Base = () => {
-    const { getMeAction, getThreads, addMessage, pinMessage } = useActions();
+    const { getMeAction, getThreads, addMessage, pinMessage, addOnlineUsersAction, removeOfflineUsersAction } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
     const { threads } = useTypedSelector(state => state.threads)
+    const { users: onlines } = useTypedSelector(state => state.onlines)
 
     const [selectedThread, setSelectedThread] = useState<User | Direct | null>(null)
     const [isShowCTXMenu, setIsShowCTXMenu] = useState(false)
@@ -26,6 +28,15 @@ const Base = () => {
     const [reply, setReply] = useState<Message | null>(null)
     const [isShowUserInfo, setIsShowUserInfo] = useState(false)
     useEffect(() => {
+        if (threads) {
+            let ids: number[] = []
+            threads.map(th => {
+                const contact = th.userone.id === user?.id ? th.usertwo : th.userone
+                if (contact.is_online) ids.push(contact.id)
+            })
+            addOnlineUsersAction(ids);
+
+        }
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
             setSelectedThread({ ...selectedThread, messages: updateSelectedThred.messages })
@@ -36,17 +47,28 @@ const Base = () => {
     useEffect(() => {
         if (!user) getMeAction();
         if (!threads) getThreads()
+
+        window.addEventListener("beforeunload", () => apiClient.post(route('user.ofline')))
     }, [])
 
     useEffect(() => {
         if (user) {
-
+            apiClient.post(route('user.online'))
             window.Echo.private(`user.${user.id}`)
                 .listen(".new-message", (e: any) => { addMessage(e.message) })
+                .listen(".online-users", changeOnlineUsersHandler)
                 .listenForWhisper("typing", (e: TypingThreadTypes) => { typingThreadHandler(e) })
         }
 
     }, [user])
+
+    const changeOnlineUsersHandler = (e: { user: number, is_online: boolean }) => {
+        if (e.is_online) {
+            addOnlineUsersAction([e.user])
+        } else {
+            removeOfflineUsersAction([e.user])
+        }
+    }
     const [typingThreads, setTypingThreads] = useState<number[]>([])
     const typingThreadHandler = (e: TypingThreadTypes) => {
         if (e.typing) {
@@ -55,9 +77,7 @@ const Base = () => {
             setTypingThreads(typingThreads.filter(th => th !== e.thread))
         }
     }
-    useEffect(() => {
-        console.log(typingThreads);
-    }, [typingThreads])
+
     useEffect(() => {
         const theme = isDark ? "dark" : "light"
         localStorage.setItem("theme", theme)
@@ -75,7 +95,13 @@ const Base = () => {
 
     return (
         <div className="relative flex w-full h-screen overflow-hidden antialiased bg-gray-200">
-            <ThreadsList dark={isDark} changeTheme={setIsDark} selectThread={setSelectedThread} typingThreads={typingThreads} />
+            <ThreadsList
+                onlines={onlines}
+                dark={isDark}
+                changeTheme={setIsDark}
+                selectThread={setSelectedThread}
+                typingThreads={typingThreads}
+            />
 
             <Messages
                 thread={selectedThread}
@@ -85,10 +111,15 @@ const Base = () => {
                 reply={reply}
                 removeReply={() => setReply(null)}
                 showInfo={() => setIsShowUserInfo(!isShowUserInfo)}
+                onlines={onlines}
             />
 
             {isShowUserInfo && (
-                <UserInfo thread={selectedThread} close={() => setIsShowUserInfo(false)} />
+                <UserInfo
+                    thread={selectedThread}
+                    close={() => setIsShowUserInfo(false)}
+                    onlines={onlines}
+                />
             )}
 
             {isShowCTXMenu && selectedMessageCTX && (

@@ -15,8 +15,9 @@ interface PageProps {
     reply: Message | null
     removeReply: () => void
     showInfo: () => void
+    onlines: number[]
 }
-const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo }) => {
+const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage } = useActions()
@@ -178,7 +179,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                     )}
                     <div className="flex flex-col justify-center flex-1 overflow-hidden cursor-pointer">
                         <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap first-letter:uppercase">{contact?.name ?? contact?.username}</div>
-                        <div className="overflow-hidden text-sm font-medium leading-tight  whitespace-no-wrap">Online</div>
+                        {contact && onlines.includes(contact.id) && (
+
+                            <div className="overflow-hidden text-sm font-medium leading-tight  whitespace-no-wrap">Online</div>
+                        )}
                     </div>
                     {shownPinnedMessage ? (
 

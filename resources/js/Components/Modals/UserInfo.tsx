@@ -42,7 +42,9 @@ const UserInfo: React.FC<PageProps> = ({ close, level }) => {
             </div>
 
             <div className='flex flex-col items-center justify-center'>
-                <Avatar h={16} w={16} />
+                {user && (
+                    <Avatar h={16} w={16} editable user={user} />
+                )}
                 <h2 className='font-black text-xl my-3'>{user && user.name ? user.name : user ? `${user.username}` : "Not set"}</h2>
             </div>
             <ul role='list'>
