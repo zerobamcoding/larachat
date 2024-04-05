@@ -163,6 +163,11 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             }
         }
     }
+
+    const getFullDate = (v: Date) => {
+        const date = new Date(v)
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    }
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
             {thread && (
@@ -261,7 +266,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                 <div ref={refsById[message.id]} />
                                             ) : null}
                                             {elements[index + 1] && (
-                                                new Date(elements[index].created_at).getDate() < new Date(elements[index + 1].created_at).getDate() ?
+                                                getFullDate(elements[index].created_at) < getFullDate(elements[index + 1].created_at) ?
                                                     (
                                                         <div className="self-center px-2 py-1 mx-0 my-1 text-sm w-fit text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDate()}</div>
 

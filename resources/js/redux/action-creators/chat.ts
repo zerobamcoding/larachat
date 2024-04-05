@@ -45,11 +45,11 @@ export const sendMessage = (messageDate: FormData) => async (dispatch: ThunkDisp
 }
 
 
-export const addMessage = (message: Message) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+export const addMessage = (message: Message, from: string = "me") => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
     dispatch({ type: ChatsType.CHATS_LOADING })
 
     try {
-        dispatch({ type: ChatsType.CHATS_ADD_MESSAGE, payload: { success: true, message } })
+        dispatch({ type: ChatsType.CHATS_ADD_MESSAGE, payload: { success: true, message, from } })
     } catch (error) {
         console.log(error);
 

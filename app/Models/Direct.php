@@ -6,11 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Facades\Auth;
 
 class Direct extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    protected $appends = ['unreaded_messages'];
 
     public function messages(): MorphMany
     {
@@ -30,5 +32,11 @@ class Direct extends Model
     public function usertwo()
     {
         return $this->belongsTo(User::class, "user_two", "id");
+    }
+
+    public function getUnreadedMessagesAttribute()
+    {
+        $user = Auth::user();
+        return $this->messages()->where("sender", "!=", $user->id)->where("seen", false)->count();
     }
 }

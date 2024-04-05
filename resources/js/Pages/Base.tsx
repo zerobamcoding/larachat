@@ -55,7 +55,7 @@ const Base = () => {
         if (user) {
             apiClient.post(route('user.online'))
             window.Echo.private(`user.${user.id}`)
-                .listen(".new-message", (e: any) => { addMessage(e.message) })
+                .listen(".new-message", (e: any) => { addMessage(e.message, "other") })
                 .listen(".online-users", changeOnlineUsersHandler)
                 .listenForWhisper("typing", (e: TypingThreadTypes) => { typingThreadHandler(e) })
         }

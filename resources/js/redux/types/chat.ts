@@ -11,6 +11,7 @@ export interface SentMessageResponse {
     success: boolean;
     message?: Message
     errors?: ValidationErrors
+    from?: string
 }
 export interface Direct {
     id: number;
@@ -19,6 +20,7 @@ export interface Direct {
     userone: User
     usertwo: User
     messages?: Message[]
+    unreaded_messages: number
     created_at: Date
     updated_at: Date
 }

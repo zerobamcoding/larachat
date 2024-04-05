@@ -83,6 +83,9 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                 if (editedThread >= 0) {
                     //@ts-ignore
                     const newThread: Direct = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
+                    if (action.payload.from && action.payload.from === "other") {
+                        newThread["unreaded_messages"] = newThread["unreaded_messages"] + 1;
+                    }
                     const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
                     return { loading: false, threads: [newThread, ...oldThreads] }
                 } else {

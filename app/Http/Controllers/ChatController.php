@@ -97,7 +97,7 @@ class ChatController extends Controller
         return $conversation;
     }
 
-    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 20)
+    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 5)
     {
         return $direct
             ->messages()
@@ -110,6 +110,23 @@ class ChatController extends Controller
             ->values();
     }
 
+    public function getFromUnreaded(Direct $direct, int $user_id)
+    {
+        $messages = [];
+        $unreaded = 0;
+        $page = 0;
+        do {
+            $lists = $this->getThreadMessages($direct, $page * 5);
+            foreach ($lists as $list) {
+                if ($list->sender != $user_id && !$list->seen) {
+                    $unreaded++;
+                }
+            }
+            array_unshift($messages, ...$lists);
+            $page++;
+        } while ($direct->unreaded_messages > $unreaded);
+        return ["messages" => $messages, "page" => $page];
+    }
     public function getThreads()
     {
         /**
@@ -122,8 +139,9 @@ class ChatController extends Controller
 
         $threads = [];
         foreach ($directs as $direct) {
-            $message = $this->getThreadMessages($direct);
-            $direct['messages'] = $message;
+            $response = $this->getFromUnreaded($direct, $user->id);
+            $direct['messages'] = $response['messages'];
+            $direct['page'] = $response['page'];
             $threads[] = $direct;
         }
         // ->makeHidden(['user_one', "user_two"])
