@@ -106,6 +106,18 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                     return { loading: false, threads }
                 }
             }
+        case ChatsType.CHATS_SEEN_MESSAGE:
+            if (state.threads) {
+                const threads = [...state.threads]
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id)
+
+                if (editedThread >= 0) {
+                    const updatedMessage = state.threads[editedThread].messages?.map(m => { if (m.id === action.payload.message?.id) { return action.payload.message } else { return m } })
+                    threads[editedThread].messages = updatedMessage
+                    threads[editedThread].unreaded_messages = threads[editedThread].unreaded_messages - 1
+                    return { loading: false, threads }
+                }
+            }
         case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
         default:

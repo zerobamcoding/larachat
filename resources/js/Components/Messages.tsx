@@ -20,7 +20,7 @@ interface PageProps {
 const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
-    const { sendMessage } = useActions()
+    const { sendMessage, seenMessage } = useActions()
     const [messageValue, setMessageValue] = useState("")
     const [files, setFiles] = useState<File[]>([])
     const fileRef = useRef<HTMLInputElement>(null)
@@ -29,6 +29,8 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     const [isTyping, setIsTyping] = useState(false)
     const [pinnedMessages, setPinnedMessages] = useState<Message[]>([])
     const [shownPinnedMessage, setShownPinnedMessage] = useState<Message | null>(null)
+    const [mustSeenMessages, setMustSeenMessages] = useState<Message[]>([])
+    const [isSeen, setIsSeen] = useState<number[]>([])
     const [contact, setContact] = useState<User | null>(null)
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -41,18 +43,18 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         ref.current?.scrollIntoView({ behavior: "smooth", block: "end" })
     }
 
-    useEffect(() => {
-        scrollToView(ref)
-    }, [])
 
     useEffect(() => {
         if (thread && !isAnUser(thread)) {
             const pinned: Message[] = []
+            const unseen: Message[] = []
             thread.messages?.map(m => {
+                m.sender !== me?.id && !m.seen ? unseen.push(m) : null
                 m.pinned ? pinned.push(m) : null
             })
             setShownPinnedMessage(pinned[pinned.length - 1])
             setPinnedMessages(pinned)
+            setMustSeenMessages(unseen)
             if (me) {
                 const contactObj = me.id === thread.userone.id ? thread.usertwo : thread.userone
                 setContact(contactObj)
@@ -147,11 +149,13 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
     const refsById = useMemo(() => {
         const refs: any = {}
-        pinnedMessages.forEach(item => {
+        const merged = pinnedMessages.concat(mustSeenMessages)
+        merged.forEach(item => {
             refs[item.id] = React.createRef()
         })
         return refs
-    }, [pinnedMessages])
+    }, [pinnedMessages, mustSeenMessages])
+
     const showPinnedMessageHandler = () => {
         if (shownPinnedMessage) {
             scrollToView(refsById[shownPinnedMessage.id])
@@ -168,14 +172,41 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         const date = new Date(v)
         return new Date(date.getFullYear(), date.getMonth(), date.getDate())
     }
+    const checkInViewHandler = () => {
+        if (mustSeenMessages.length) {
+            console.log("scrolled");
+
+            mustSeenMessages.map(message => {
+                const ref: React.RefObject<HTMLDivElement> = refsById[message.id]
+                if (ref && ref.current) {
+
+                    const top = ref.current.getBoundingClientRect().top;
+                    if (top >= 0 && top + ref.current.clientHeight <= window.innerHeight) {
+                        if (!isSeen.includes(message.id)) {
+
+                            setIsSeen([...isSeen, message.id])
+                        }
+                    }
+                }
+
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        if (isSeen.length) {
+            const newUnseen = mustSeenMessages.filter(m => !isSeen.includes(m.id))
+            setMustSeenMessages(newUnseen)
+            seenMessage(isSeen[isSeen.length - 1])
+        }
+    }, [isSeen])
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
             {thread && (
 
                 <div className="z-20 flex flex-grow-0 flex-shrink-0 w-full pr-3  text-gray-600 dark:text-white">
-                    {/* <div className="w-12 h-12  bg-blue-500 bg-center bg-no-repeat bg-cover rounded-full cursor-pointer"
-                        style={{ backgroundImage: "url(https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=50)" }}>
-                    </div> */}
+
                     {contact && (
                         <div className='mx-4 my-2'>
 
@@ -213,7 +244,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                     </button>
                 </div>
             )}
-            <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-y-scroll no-scrollbar dark:bg-slate-800 bg-bottom bg-cover">
+            <div className="top-0 bottom-0 left-0 right-0 flex flex-col flex-1 overflow-y-scroll no-scrollbar dark:bg-slate-800 bg-bottom bg-cover" onScroll={checkInViewHandler}>
                 {thread ? (<>
 
                     <div className="self-center flex-1 w-full max-w-xl">
@@ -262,7 +293,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                     </div>
                                                 </div>
                                             )}
-                                            {message.pinned ? (
+                                            {message.pinned || (message.sender !== me?.id && !message.seen) ? (
                                                 <div ref={refsById[message.id]} />
                                             ) : null}
                                             {elements[index + 1] && (

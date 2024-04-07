@@ -169,4 +169,22 @@ class ChatController extends Controller
             return ["success" => false, "errors" => $e];
         }
     }
+
+    public function seenMessage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "id" => "required|exists:messages,id",
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false, "errors" => $validator->errors()->getMessages()];
+        }
+        try {
+            $message = Message::find($request->id);
+            $message->seen = true;
+            $message->save();
+            return ["success" => true, "message" => $message->refresh()->load(["replied"])];
+        } catch (Exception $e) {
+            return ["success" => false, "errors" => $e];
+        }
+    }
 }

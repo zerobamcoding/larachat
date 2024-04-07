@@ -30,9 +30,9 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false)
     const ref = clickOutside(() => setIsSidebarOpen(false))
-
-
     const [searchValue, setSearchValue] = useState("")
+
+
     const searchUserHandler = () => {
         searchUser(searchValue)
     }
@@ -40,6 +40,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
         const timeOut = setTimeout(searchUserHandler, 500)
         return () => clearTimeout(timeOut)
     }, [searchValue])
+
     const changeThemeHandler = () => {
         changeTheme(!dark)
     }
@@ -223,7 +224,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
 
                                                 ) : null}
                                                 <div className="flex">
-                                                    {th.messages && th.messages[th.messages.length - 1].sender !== user?.id ? (
+                                                    {th.messages && th.messages[th.messages.length - 1].sender === user?.id ? (
                                                         th.messages[th.messages.length - 1].seen ? (
                                                             <IconChecks className='h-5' color='green' stroke={3} />
                                                         ) : (

@@ -10,6 +10,7 @@ interface AvatarProps {
     user: User
 }
 const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user }) => {
+    const imageRef = useRef<HTMLInputElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { changeAvatar } = useActions();
     const changeAvatarHandler = (e: ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +22,6 @@ const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user }) => {
             changeAvatar(formData)
         }
     }
-    const imageRef = useRef<HTMLInputElement>(null)
 
     return (
         <div className={`group relative overflow-hidden flex items-center justify-center w-${w} h-${h} text-xl font-semibold text-white bg-blue-500 rounded-full`}>

@@ -12,6 +12,7 @@ interface PageProps {
 const UserInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
     const [userObject, setUserObject] = useState<User | null>(null)
     const { user: me } = useTypedSelector(state => state.me)
+
     const isAnUser = (obj: any): obj is User => {
         return "username" in obj;
     }
