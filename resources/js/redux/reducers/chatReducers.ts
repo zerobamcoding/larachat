@@ -95,6 +95,9 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                     }
                 }
             }
+            return { ...state }
+
+
         case ChatsType.CHATS_PIN_MESSAGE:
             if (state.threads) {
                 const threads = [...state.threads]
@@ -106,6 +109,8 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                     return { loading: false, threads }
                 }
             }
+            return { ...state }
+
         case ChatsType.CHATS_SEEN_MESSAGE:
             if (state.threads) {
                 const threads = [...state.threads]
@@ -118,6 +123,23 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                     return { loading: false, threads }
                 }
             }
+            return { ...state }
+
+        case ChatsType.CHATS_LOAD_MORE_MESSAGES:
+            if (state.threads) {
+                const threads = [...state.threads]
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.direct)
+
+                if (editedThread >= 0) {
+                    threads[editedThread].messages = [...action.payload.messages, ...threads[editedThread].messages]
+                    threads[editedThread].page = action.payload.page
+                    threads[editedThread].has_more = action.payload.has_more
+
+                    return { loading: false, threads }
+                }
+            }
+            return { ...state }
+
         case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
         default:

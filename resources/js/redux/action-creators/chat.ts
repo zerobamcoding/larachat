@@ -3,7 +3,7 @@ import { SearchUserActions, ChatsActions, OnlineUsersActions } from "../actions/
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
-import { Message, SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { Message, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
     dispatch({ type: SearchUserType.SEARCH_LOADING })
@@ -85,6 +85,25 @@ export const seenMessage = (id: number) => async (dispatch: ThunkDispatch<{}, {}
         }
 
         dispatch({ type: ChatsType.CHATS_SEEN_MESSAGE, payload: data })
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
+
+export const loadMoreMessage = (direct: number, page: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: PaginatedMessages } = await apiClient.post(route("chat.loadmore"), { direct, page })
+        // if (data && !data.success && data.errors) {
+        //     dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
+        //     return
+        // }
+
+        dispatch({ type: ChatsType.CHATS_LOAD_MORE_MESSAGES, payload: data })
 
     } catch (error) {
         console.log(error);

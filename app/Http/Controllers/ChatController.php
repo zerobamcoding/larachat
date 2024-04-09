@@ -97,7 +97,7 @@ class ChatController extends Controller
         return $conversation;
     }
 
-    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 5)
+    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 20)
     {
         return $direct
             ->messages()
@@ -116,7 +116,7 @@ class ChatController extends Controller
         $unreaded = 0;
         $page = 0;
         do {
-            $lists = $this->getThreadMessages($direct, $page * 5);
+            $lists = $this->getThreadMessages($direct, $page * 20);
             foreach ($lists as $list) {
                 if ($list->sender != $user_id && !$list->seen) {
                     $unreaded++;
@@ -127,6 +127,19 @@ class ChatController extends Controller
         } while ($direct->unreaded_messages > $unreaded);
         return ["messages" => $messages, "page" => $page];
     }
+
+    public function loadmoreMessages(Request $request)
+    {
+        /**
+         * @var User $user
+         */
+        $user = Auth::user();
+        $direct = Direct::find($request->direct);
+        $messages = $this->getThreadMessages($direct, $request->page * 20);
+        $has_more = $direct->messages()->where("id", "<", $messages[0]->id)->count();
+        return ["success" => true, "direct" => $request->direct, "messages" => $messages, "page" => $request->page, "has_more" => $has_more > 0];
+    }
+
     public function getThreads()
     {
         /**
@@ -142,6 +155,7 @@ class ChatController extends Controller
             $response = $this->getFromUnreaded($direct, $user->id);
             $direct['messages'] = $response['messages'];
             $direct['page'] = $response['page'];
+            $direct["has_more"] = $direct->messages()->count() - count($response['messages']) > 0;
             $threads[] = $direct;
         }
         // ->makeHidden(['user_one', "user_two"])

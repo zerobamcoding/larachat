@@ -1,5 +1,5 @@
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
-import { SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { ThreadsList, ValidationErrors } from "../types/user";
 
 interface SearchUserLoading {
@@ -45,6 +45,11 @@ interface seenMessageSuccess {
     type: ChatsType.CHATS_SEEN_MESSAGE
     payload: SentMessageResponse
 }
+
+interface loadMoreMessagesSuccess {
+    type: ChatsType.CHATS_LOAD_MORE_MESSAGES,
+    payload: PaginatedMessages
+}
 interface ChatsError {
     type: ChatsType.CHATS_ERROR
     payload: { errors: ValidationErrors }
@@ -56,6 +61,7 @@ export type ChatsActions =
     SendMessageSuccess |
     pinMessageSuccess |
     seenMessageSuccess |
+    loadMoreMessagesSuccess |
     ChatsError
 
 

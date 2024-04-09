@@ -20,7 +20,7 @@ interface PageProps {
 const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
-    const { sendMessage, seenMessage } = useActions()
+    const { sendMessage, seenMessage, loadMoreMessage } = useActions()
     const [messageValue, setMessageValue] = useState("")
     const [files, setFiles] = useState<File[]>([])
     const fileRef = useRef<HTMLInputElement>(null)
@@ -172,10 +172,12 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         const date = new Date(v)
         return new Date(date.getFullYear(), date.getMonth(), date.getDate())
     }
-    const checkInViewHandler = () => {
-        if (mustSeenMessages.length) {
-            console.log("scrolled");
 
+    const [scrollTop, setScrollTop] = useState(1)
+    const checkInViewHandler = (e: React.UIEvent<HTMLDivElement>) => {
+        setScrollTop(e.currentTarget.scrollTop);
+
+        if (mustSeenMessages.length) {
             mustSeenMessages.map(message => {
                 const ref: React.RefObject<HTMLDivElement> = refsById[message.id]
                 if (ref && ref.current) {
@@ -193,6 +195,13 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         }
 
     }
+
+    useEffect(() => {
+        if (scrollTop === 0 && thread && !isAnUser(thread) && thread.has_more) {
+            loadMoreMessage(thread.id, thread.page + 1)
+        }
+
+    }, [scrollTop])
 
     useEffect(() => {
         if (isSeen.length) {
@@ -249,7 +258,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
                     <div className="self-center flex-1 w-full max-w-xl">
                         <div className="relative flex flex-col px-3 py-1 m-auto">
-                            <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">Channel was created</div>
+                            {thread && !isAnUser(thread) && !thread.has_more ? (
+
+                                <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">Channel was created</div>
+                            ) : null}
                             {isAnUser(thread) ? (<p>User not implemented</p>) : (
                                 <>
                                     {thread && thread.messages && (

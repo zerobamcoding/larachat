@@ -13,6 +13,14 @@ export interface SentMessageResponse {
     errors?: ValidationErrors
     from?: string
 }
+
+export interface PaginatedMessages {
+    success: boolean;
+    direct: number
+    messages: Message[]
+    page: number
+    has_more: boolean
+}
 export interface Direct {
     id: number;
     user_one?: number
@@ -21,6 +29,8 @@ export interface Direct {
     usertwo: User
     messages?: Message[]
     unreaded_messages: number
+    page: number
+    has_more: boolean
     created_at: Date
     updated_at: Date
 }

@@ -74,6 +74,7 @@ Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(f
     Route::post('/send', 'sendMessage')->name("send")->middleware("auth:sanctum");
     Route::post('/pin', 'pinMessage')->name("pin")->middleware("auth:sanctum");
     Route::post('/seen', 'seenMessage')->name("seen")->middleware("auth:sanctum");
+    Route::post('/loadmore', 'loadmoreMessages')->name("loadmore")->middleware("auth:sanctum");
 });
 
 
