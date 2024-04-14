@@ -19,8 +19,9 @@ interface PageProps {
     selectThread: React.Dispatch<React.SetStateAction<Direct | User | null>>
     typingThreads: number[]
     onlines: number[]
+    createGroup: () => void
 }
-const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typingThreads, onlines }) => {
+const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typingThreads, onlines, createGroup }) => {
     const { searchUser } = useActions();
     const { user } = useTypedSelector(state => state.me)
     const { users: searchedUsers } = useTypedSelector(state => state.search)
@@ -72,7 +73,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                     </div>
                     <hr />
                     <ul role='list '>
-                        <li className='flex flex-row space-x-5 p-5 cursor-pointer hover:bg-slate-400/20'>
+                        <li className='flex flex-row space-x-5 p-5 cursor-pointer hover:bg-slate-400/20' onClick={() => createGroup()}>
                             <UsersIcon className='h-5' />
                             <span>New Group</span>
                         </li>

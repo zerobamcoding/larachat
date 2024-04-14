@@ -9,6 +9,8 @@ import { User } from '@/redux/types/user'
 import { Direct, Message } from '@/redux/types/chat'
 import RightClickMenu from '@/Components/RightClickMenu'
 import apiClient from '@/libs/apiClient'
+import Modal from '@/utils/Modal'
+import GroupName from '@/Components/Modals/GroupName'
 
 interface TypingThreadTypes {
     thread: number
@@ -27,15 +29,20 @@ const Base = () => {
     const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
     const [reply, setReply] = useState<Message | null>(null)
     const [isShowUserInfo, setIsShowUserInfo] = useState(false)
+    const [isShowCreateGropModal, setIsShowCreateGropModal] = useState(false)
+    const [contacts, setContacts] = useState<User[]>([])
+
     useEffect(() => {
         if (threads) {
             let ids: number[] = []
+            let contactLists: User[] = []
             threads.map(th => {
                 const contact = th.userone.id === user?.id ? th.usertwo : th.userone
                 if (contact.is_online) ids.push(contact.id)
+                if (contact.id !== user?.id) contactLists.push(contact)
             })
             addOnlineUsersAction(ids);
-
+            setContacts(contactLists)
         }
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
@@ -101,6 +108,7 @@ const Base = () => {
                 changeTheme={setIsDark}
                 selectThread={setSelectedThread}
                 typingThreads={typingThreads}
+                createGroup={() => setIsShowCreateGropModal(true)}
             />
 
             <Messages
@@ -131,6 +139,9 @@ const Base = () => {
                     pin={pinMessageHandler}
                 />
             )}
+            <Modal show={isShowCreateGropModal} close={() => setIsShowCreateGropModal(false)} >
+                <GroupName close={() => setIsShowCreateGropModal(false)} contacts={contacts} />
+            </Modal>
         </div>
     )
 }

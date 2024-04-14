@@ -8,8 +8,9 @@ interface AvatarProps {
     w: number;
     editable?: boolean
     user: User
+    selected?: boolean
 }
-const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user }) => {
+const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false }) => {
     const imageRef = useRef<HTMLInputElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { changeAvatar } = useActions();
@@ -24,7 +25,7 @@ const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user }) => {
     }
 
     return (
-        <div className={`group relative overflow-hidden flex items-center justify-center w-${w} h-${h} text-xl font-semibold text-white bg-blue-500 rounded-full`}>
+        <div className={`group relative overflow-hidden flex items-center justify-center w-${w} h-${h} text-xl font-semibold text-white bg-blue-500 rounded-full ${selected ? "ring-[3px] ring-blue-500 ring-offset-4" : ""}`}>
             {user && user.id === me?.id ? (
                 <IconBookmark size={24} stroke={3} />
             ) : user && user.avatar ? (
