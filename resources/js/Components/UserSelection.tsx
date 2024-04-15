@@ -19,8 +19,7 @@ const UserSelection: React.FC<PageProps> = ({ lists, selected, addToSelected }) 
 
     return (
         <div className='p-5 pt-2 flex flex-col'>
-            <div className='flex flex-row flex-wrap'>
-
+            <div className='flex flex-row flex-wrap space-x-1 max-h-20 overflow-y-auto no-scrollbar'>
                 {selected.length ? (
                     selected.map(selected => (
                         <div key={selected.id} className='flex items-center border-[1px] rounded-full space-x-1 p-1'>
@@ -41,7 +40,7 @@ const UserSelection: React.FC<PageProps> = ({ lists, selected, addToSelected }) 
                     </div>
                 )}
             </div>
-            <div className='flex flex-row flex-wrap justify-start items-start cursor-pointer h-[380px] overflow-y-auto no-scrollbar  p-4'>
+            <div className='flex flex-row flex-wrap justify-start items-start cursor-pointer h-[380px] overflow-y-auto no-scrollbar p-4'>
                 {lists && lists.map(list => (
                     <div key={list.id} className='relative flex basis-1/4 mb-4'>
 

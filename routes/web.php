@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\Authenticate;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -75,6 +76,10 @@ Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(f
     Route::post('/pin', 'pinMessage')->name("pin")->middleware("auth:sanctum");
     Route::post('/seen', 'seenMessage')->name("seen")->middleware("auth:sanctum");
     Route::post('/loadmore', 'loadmoreMessages')->name("loadmore")->middleware("auth:sanctum");
+});
+
+Route::controller(GroupController::class)->prefix("group")->name('group.')->group(function () {
+    Route::post('/new_group', 'createNewGroup')->name("new")->middleware("auth:sanctum");
 });
 
 
