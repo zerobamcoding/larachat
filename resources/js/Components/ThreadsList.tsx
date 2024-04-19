@@ -13,10 +13,12 @@ import { useActions } from '@/hooks/useActions';
 import { User } from '@/redux/types/user';
 import { Direct } from '@/redux/types/chat';
 import Avatar from './Avatar';
+import { Group } from '@/redux/types/group';
+import { isDirect } from '@/utils/CheckType';
 interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
-    selectThread: React.Dispatch<React.SetStateAction<Direct | User | null>>
+    selectThread: React.Dispatch<React.SetStateAction<Direct | User | Group | null>>
     typingThreads: number[]
     onlines: number[]
     createGroup: () => void
@@ -195,13 +197,13 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                 <div className="flex justify-between w-full focus:outline-none">
                                     <div className="flex justify-between w-full">
                                         <div className="relative flex items-center justify-center w-12 h-12 ml-2 mr-3 text-xl font-semibold text-white bg-blue-500 rounded-full flex-no-shrink">
-                                            {user && th.userone.id === user.id ?
+                                            {isDirect(th) ? user && th.userone.id === user.id ?
                                                 <Avatar h={12} w={12} user={th.usertwo} />
                                                 :
                                                 <Avatar h={12} w={12} user={th.userone} />
 
-                                            }
-                                            {user && th.userone.id === user.id ?
+                                                : <p>{th.name.slice(0, 1).toUpperCase()}</p>}
+                                            {isDirect(th) ? user && th.userone.id === user.id ?
                                                 onlines.includes(th.usertwo.id) ? (
                                                     <div className="absolute bottom-0 right-0 flex items-center justify-center bg-white rounded-full" style={{ width: "0.8rem", height: "0.8rem" }}>
                                                         <div className="bg-green-500 rounded-full" style={{ width: "0.6rem", height: "0.6rem" }}></div>
@@ -211,28 +213,30 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                                     <div className="absolute bottom-0 right-0 flex items-center justify-center bg-white rounded-full" style={{ width: "0.8rem", height: "0.8rem" }}>
                                                         <div className="bg-green-500 rounded-full" style={{ width: "0.6rem", height: "0.6rem" }}></div>
                                                     </div>
-                                                ) : null}
+                                                ) : null
+                                                : null}
 
                                         </div>
                                         <div className="items-center flex-1 min-w-0">
                                             <div className="flex justify-between mb-1">
-                                                {user && th.userone.id === th.usertwo.id ? (
+                                                {isDirect(th) ? user && th.userone.id === th.usertwo.id ? (
                                                     <h2 className="text-sm font-semibold ">Saved Message</h2>
                                                 ) : user && user.id === th.userone.id ? (
                                                     <h2 className="text-sm font-semibold ">{th.usertwo.username}</h2>
                                                 ) : user && user.id === th.usertwo.id ? (
                                                     <h2 className="text-sm font-semibold ">{th.userone.username}</h2>
 
-                                                ) : null}
+                                                ) : null
+                                                    : <h2 className="text-sm font-semibold ">{th.name}</h2>}
                                                 <div className="flex">
-                                                    {th.messages && th.messages[th.messages.length - 1].sender === user?.id ? (
+                                                    {th.messages && th.messages.length && th.messages[th.messages.length - 1].sender === user?.id ? (
                                                         th.messages[th.messages.length - 1].seen ? (
                                                             <IconChecks className='h-5' color='green' stroke={3} />
                                                         ) : (
                                                             <IconCheck className='h-5' color='gray' stroke={3} />
                                                         )
                                                     ) : null}
-                                                    {th.messages ? (
+                                                    {th.messages && th.messages.length ? (
 
                                                         <span className="ml-1 text-xs font-medium text-gray-600">{new Date(th.messages[th.messages.length - 1].created_at).getHours()}:{new Date(th.messages[th.messages.length - 1].created_at).getMinutes() < 10 ? `0${new Date(th.messages[th.messages.length - 1].created_at).getMinutes()}` : new Date(th.messages[th.messages.length - 1].created_at).getMinutes()}</span>
                                                     ) : null}
@@ -243,7 +247,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                                     <span className='text-gray-500'>is typing...</span>
 
                                                 ) : (
-                                                    <span>{th.messages && th.messages[th.messages.length - 1].message}</span>
+                                                    <span>{th.messages && th.messages.length ? th.messages[th.messages.length - 1].message : ""}</span>
                                                 )}
                                                 {th.unreaded_messages > 0 ? (
 

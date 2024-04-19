@@ -7,8 +7,10 @@ import { useTypedSelector } from '@/hooks/use-typed-selector'
 import Modal from '@/utils/Modal'
 import SendFile from './Modals/SendFile'
 import Avatar from './Avatar'
+import { isAnUser, isDirect } from '@/utils/CheckType'
+import { Group } from '@/redux/types/group'
 interface PageProps {
-    thread: User | Direct | null
+    thread: User | Direct | Group | null
     showCTXMenu: (v: boolean) => void
     changeMenuPosition: (v: { x: number, y: number }) => void
     selectedMessageCTX: (v: Message) => void
@@ -35,9 +37,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 
-    const isAnUser = (obj: any): obj is User => {
-        return "username" in obj;
-    }
+
 
     const scrollToView = (ref: any) => {
         ref.current?.scrollIntoView({ behavior: "smooth", block: "end" })
@@ -55,7 +55,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             setShownPinnedMessage(pinned[pinned.length - 1])
             setPinnedMessages(pinned)
             setMustSeenMessages(unseen)
-            if (me) {
+            if (me && isDirect(thread)) {
                 const contactObj = me.id === thread.userone.id ? thread.usertwo : thread.userone
                 setContact(contactObj)
             }
@@ -260,63 +260,65 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                         <div className="relative flex flex-col px-3 py-1 m-auto">
                             {thread && !isAnUser(thread) && !thread.has_more ? (
 
-                                <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">Channel was created</div>
+                                <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{thread.type} was created</div>
                             ) : null}
                             {isAnUser(thread) ? (<p>User not implemented</p>) : (
                                 <>
-                                    {thread && thread.messages && (
+                                    {thread && thread.messages && thread.messages.length ? (
                                         <div className="self-center px-2 py-1 mx-0 my-1 text-sm  text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(thread.messages[0].created_at).getMonth()]} {new Date(thread.messages[0].created_at).getDate()}</div>
 
-                                    )}
-                                    {thread.messages?.map((message, index, elements) => (
-                                        <React.Fragment key={message.id}>
-                                            {message.type === "text" ? (
+                                    ) : null}
+                                    {thread.messages && thread.messages.length ?
+                                        thread.messages.map((message, index, elements) => (
+                                            <React.Fragment key={message.id}>
+                                                {message.type === "text" ? (
 
-                                                <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
-                                                    {message.replied && (
-                                                        <div className='bg-slate-100 p-2 mx-2 mt-1 border-l-2 border-sky-400 rounded-md cursor-pointer'>
-                                                            <p className='text-xs font-extralight'>{message.replied.message}</p>
-                                                        </div>
-                                                    )}
-                                                    <div className='flex flex-row'>
+                                                    <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                        {message.replied && (
+                                                            <div className='bg-slate-100 p-2 mx-2 mt-1 border-l-2 border-sky-400 rounded-md cursor-pointer'>
+                                                                <p className='text-xs font-extralight'>{message.replied.message}</p>
+                                                            </div>
+                                                        )}
+                                                        <div className='flex flex-row'>
 
-                                                        <div className={`p-4 text-sm `}>
-                                                            {message.message}
-                                                        </div>
-                                                        <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
-                                                            <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ) : (
-                                                <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
-                                                    {message.files?.split(",").map((img, i) => (
-
-                                                        <img key={i} className='p-2' src={`storage/${img}`} alt={'message file Type'} />
-                                                    ))}
-                                                    <div className='flex flex-row w-full'>
-
-                                                        <div className={`p-4 text-sm w-full`}>
-                                                            {message.message}
-                                                        </div>
-                                                        <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
-                                                            <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                            <div className={`p-4 text-sm `}>
+                                                                {message.message}
+                                                            </div>
+                                                            <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                                <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            )}
-                                            {message.pinned || (message.sender !== me?.id && !message.seen) ? (
-                                                <div ref={refsById[message.id]} />
-                                            ) : null}
-                                            {elements[index + 1] && (
-                                                getFullDate(elements[index].created_at) < getFullDate(elements[index + 1].created_at) ?
-                                                    (
-                                                        <div className="self-center px-2 py-1 mx-0 my-1 text-sm w-fit text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDate()}</div>
+                                                ) : (
+                                                    <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                        {message.files?.split(",").map((img, i) => (
 
-                                                    ) : null
-                                            )}
-                                        </React.Fragment>
-                                    ))}
+                                                            <img key={i} className='p-2' src={`storage/${img}`} alt={'message file Type'} />
+                                                        ))}
+                                                        <div className='flex flex-row w-full'>
+
+                                                            <div className={`p-4 text-sm w-full`}>
+                                                                {message.message}
+                                                            </div>
+                                                            <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                                <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {message.pinned || (message.sender !== me?.id && !message.seen) ? (
+                                                    <div ref={refsById[message.id]} />
+                                                ) : null}
+                                                {elements[index + 1] && (
+                                                    getFullDate(elements[index].created_at) < getFullDate(elements[index + 1].created_at) ?
+                                                        (
+                                                            <div className="self-center px-2 py-1 mx-0 my-1 text-sm w-fit text-gray-700 bg-white border border-gray-200 rounded-full shadow rounded-tg">{monthName[new Date(elements[index + 1].created_at).getMonth()]} {new Date(elements[index + 1].created_at).getDate()}</div>
+
+                                                        ) : null
+                                                )}
+                                            </React.Fragment>
+                                        ))
+                                        : null}
                                 </>
                             )}
                             <div ref={ref} />

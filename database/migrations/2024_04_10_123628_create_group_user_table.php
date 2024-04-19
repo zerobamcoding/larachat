@@ -16,6 +16,9 @@ return new class extends Migration
         Schema::create('group_user', function (Blueprint $table) {
             $table->foreignIdFor(Group::class)->constrained();
             $table->foreignIdFor(User::class)->constrained();
+            $table->boolean("is_admin")->default(false);
+            $table->foreignId("added_by")->nullable()->constrained("users")->nullOnDelete();
+            $table->datetime("added_at")->useCurrent();
         });
     }
 

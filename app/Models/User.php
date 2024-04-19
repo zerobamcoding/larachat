@@ -28,6 +28,10 @@ class User extends Authenticatable
         'otp',
     ];
 
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class, 'group_user');
+    }
     /**
      * The attributes that should be cast.
      *

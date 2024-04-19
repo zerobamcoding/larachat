@@ -23,14 +23,16 @@ class GroupController extends Controller
         }
         try {
             $user = Auth::user();
+            $users = [$user->id];
             $group = new Group();
             $group->name = $request->name;
-            $group->admin = $user->id;
+            $group->creator = $user->id;
             $group->save();
 
-            if (isset($request->users) && count($request->users)) {
-                $group->users()->attach($request->users);
-            }
+            array_push($users, ...$request->users);
+            // if (isset($request->users) && count($request->users)) {
+            $group->users()->attach($users, ["added_by" => $user->id]);
+            // }
             return ["success" => true, "group" => $group];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];

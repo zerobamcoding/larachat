@@ -22,6 +22,7 @@ export interface PaginatedMessages {
     has_more: boolean
 }
 export interface Direct {
+    type: "Direct"
     id: number;
     user_one?: number
     user_two?: number

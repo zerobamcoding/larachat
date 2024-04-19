@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\SentDirectProcessed;
 use App\Models\Direct;
+use App\Models\Group;
 use App\Models\Message;
 use App\Models\User;
 use Exception;
@@ -97,7 +98,7 @@ class ChatController extends Controller
         return $conversation;
     }
 
-    public function getThreadMessages(Direct $direct, int $offset = 0, int $take = 20)
+    public function getThreadMessages(Direct | Group $direct, int $offset = 0, int $take = 20)
     {
         return $direct
             ->messages()
@@ -110,7 +111,7 @@ class ChatController extends Controller
             ->values();
     }
 
-    public function getFromUnreaded(Direct $direct, int $user_id)
+    public function getFromUnreaded(Direct | Group $direct, int $user_id)
     {
         $messages = [];
         $unreaded = 0;
@@ -149,9 +150,12 @@ class ChatController extends Controller
         $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["userone", "usertwo"])->orderByDesc('updated_at')
             ->get();
 
+        $groups = $user->groups()->get();
+
+        $merged = $directs->merge($groups)->sortBy([fn ($a, $b) => $a['updated_at'] < $b['updated_at']]);
 
         $threads = [];
-        foreach ($directs as $direct) {
+        foreach ($merged as $direct) {
             $response = $this->getFromUnreaded($direct, $user->id);
             $direct['messages'] = $response['messages'];
             $direct['page'] = $response['page'];

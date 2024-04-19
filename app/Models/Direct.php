@@ -12,7 +12,12 @@ class Direct extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $appends = ['unreaded_messages'];
+    protected $appends = ['type', 'unreaded_messages'];
+
+    public function getTypeAttribute()
+    {
+        return "Direct";
+    }
 
     public function messages(): MorphMany
     {

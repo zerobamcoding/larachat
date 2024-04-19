@@ -11,6 +11,8 @@ import RightClickMenu from '@/Components/RightClickMenu'
 import apiClient from '@/libs/apiClient'
 import Modal from '@/utils/Modal'
 import GroupName from '@/Components/Modals/GroupName'
+import { Group } from '@/redux/types/group'
+import { isDirect } from '@/utils/CheckType'
 
 interface TypingThreadTypes {
     thread: number
@@ -23,7 +25,7 @@ const Base = () => {
     const { threads } = useTypedSelector(state => state.threads)
     const { users: onlines } = useTypedSelector(state => state.onlines)
 
-    const [selectedThread, setSelectedThread] = useState<User | Direct | null>(null)
+    const [selectedThread, setSelectedThread] = useState<User | Direct | Group | null>(null)
     const [isShowCTXMenu, setIsShowCTXMenu] = useState(false)
     const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
     const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
@@ -37,9 +39,11 @@ const Base = () => {
             let ids: number[] = []
             let contactLists: User[] = []
             threads.map(th => {
-                const contact = th.userone.id === user?.id ? th.usertwo : th.userone
-                if (contact.is_online) ids.push(contact.id)
-                if (contact.id !== user?.id) contactLists.push(contact)
+                if (isDirect(th)) {
+                    const contact = th.userone.id === user?.id ? th.usertwo : th.userone
+                    if (contact.is_online) ids.push(contact.id)
+                    if (contact.id !== user?.id) contactLists.push(contact)
+                }
             })
             addOnlineUsersAction(ids);
             setContacts(contactLists)
@@ -122,7 +126,7 @@ const Base = () => {
                 onlines={onlines}
             />
 
-            {isShowUserInfo && (
+            {/* {isShowUserInfo && (
                 <UserInfo
                     thread={selectedThread}
                     close={() => setIsShowUserInfo(false)}
@@ -138,7 +142,7 @@ const Base = () => {
                     reply={setReply}
                     pin={pinMessageHandler}
                 />
-            )}
+            )} */}
             <Modal show={isShowCreateGropModal} close={() => setIsShowCreateGropModal(false)} >
                 <GroupName close={() => setIsShowCreateGropModal(false)} contacts={contacts} />
             </Modal>
