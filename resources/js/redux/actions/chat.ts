@@ -1,5 +1,6 @@
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
 import { PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { Group } from "../types/group";
 import { ThreadsList, ValidationErrors } from "../types/user";
 
 interface SearchUserLoading {
@@ -50,6 +51,11 @@ interface loadMoreMessagesSuccess {
     type: ChatsType.CHATS_LOAD_MORE_MESSAGES,
     payload: PaginatedMessages
 }
+
+interface AddToGroup {
+    type: ChatsType.CHATS_ADD_TO_GROUP,
+    payload: Group
+}
 interface ChatsError {
     type: ChatsType.CHATS_ERROR
     payload: { errors: ValidationErrors }
@@ -61,6 +67,7 @@ export type ChatsActions =
     SendMessageSuccess |
     pinMessageSuccess |
     seenMessageSuccess |
+    AddToGroup |
     loadMoreMessagesSuccess |
     ChatsError
 

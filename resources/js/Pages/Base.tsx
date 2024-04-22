@@ -12,14 +12,14 @@ import apiClient from '@/libs/apiClient'
 import Modal from '@/utils/Modal'
 import GroupName from '@/Components/Modals/GroupName'
 import { Group } from '@/redux/types/group'
-import { isDirect } from '@/utils/CheckType'
+import { isDirect, isGroup } from '@/utils/CheckType'
 
 interface TypingThreadTypes {
     thread: number
     typing: boolean
 }
 const Base = () => {
-    const { getMeAction, getThreads, addMessage, pinMessage, addOnlineUsersAction, removeOfflineUsersAction } = useActions();
+    const { getMeAction, getThreads, addMessage, pinMessage, addOnlineUsersAction, removeOfflineUsersAction, addedToGroupAction } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
     const { threads } = useTypedSelector(state => state.threads)
@@ -44,6 +44,11 @@ const Base = () => {
                     if (contact.is_online) ids.push(contact.id)
                     if (contact.id !== user?.id) contactLists.push(contact)
                 }
+                if (isGroup(th)) {
+                    window.Echo.private(`group.${th.id}`)
+                        .listen('.add-message', (e: any) => addMessage(e.message, "other")
+                        )
+                }
             })
             addOnlineUsersAction(ids);
             setContacts(contactLists)
@@ -62,12 +67,16 @@ const Base = () => {
         window.addEventListener("beforeunload", () => apiClient.post(route('user.ofline')))
     }, [])
 
+    const addedToGroupHandler = ({ group }: { group: Group }) => {
+        addedToGroupAction(group)
+    }
     useEffect(() => {
         if (user) {
             apiClient.post(route('user.online'))
             window.Echo.private(`user.${user.id}`)
                 .listen(".new-message", (e: any) => { addMessage(e.message, "other") })
                 .listen(".online-users", changeOnlineUsersHandler)
+                .listen(".add-to-group", addedToGroupHandler)
                 .listenForWhisper("typing", (e: TypingThreadTypes) => { typingThreadHandler(e) })
         }
 

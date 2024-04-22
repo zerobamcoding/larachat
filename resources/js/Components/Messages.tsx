@@ -7,7 +7,7 @@ import { useTypedSelector } from '@/hooks/use-typed-selector'
 import Modal from '@/utils/Modal'
 import SendFile from './Modals/SendFile'
 import Avatar from './Avatar'
-import { isAnUser, isDirect } from '@/utils/CheckType'
+import { isAnUser, isDirect, isGroup } from '@/utils/CheckType'
 import { Group } from '@/redux/types/group'
 interface PageProps {
     thread: User | Direct | Group | null
@@ -75,11 +75,15 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
         if (isAnUser(thread)) {
             formData.append("to", thread.id.toString())
-        } else {
+        } else if (isDirect(thread)) {
 
             if (thread && contact) {
                 formData.append("to", contact.id.toString())
+                formData.append("model", "direct")
             }
+        } else if (isGroup(thread)) {
+            formData.append("to", thread.id.toString())
+            formData.append("model", "group")
         }
         formData.append("message", caption.length ? caption : messageValue)
         reply ? formData.append("reply", reply.id.toString()) : null

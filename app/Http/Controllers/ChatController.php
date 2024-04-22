@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\SentDirectProcessed;
+use App\Events\SentGroupMessage;
 use App\Models\Direct;
 use App\Models\Group;
 use App\Models\Message;
@@ -29,23 +30,58 @@ class ChatController extends Controller
         return ["success" => true, "users" => $users];
     }
 
+    public function sendDirectMessage(User $user, array $data, array $uploaded)
+    {
+        $to = User::find($data['to']);
+        $conversation = $this->getConversation($user, $to);
+        $message = $conversation->messages()->create([
+            "message" => $data['message'],
+            "sender" => $user->id,
+            "type" => $data['type'] ?? "text",
+            "files" => count($uploaded) ? implode(",", $uploaded) : null,
+            "replied" => $data['reply'] ?? null
+        ]);
+        event(new SentDirectProcessed($message->load(["messageable" => function ($query) {
+            return $query->with(['userone', 'usertwo']);
+        }]), $data['to']));
+        return $message;
+    }
+
+    public function sendGroupMessage(User $user, array $data, array $uploaded)
+    {
+        $group = Group::find($data['to']);
+        $message = $group->messages()->create([
+            "message" => $data['message'],
+            "sender" => $user->id,
+            "type" => $data['type'] ?? "text",
+            "files" => count($uploaded) ? implode(",", $uploaded) : null,
+            "replied" => $data['reply'] ?? null
+        ]);
+
+        event(new SentGroupMessage($message));
+        return $message;
+    }
+
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "to" => "required|exists:users,id",
+            "to" => "required|integer",
             "message" => "required|string",
             "replied" => "sometimes|exists:messages,id",
             "files" => "sometimes",
-            "reply" => "sometimes"
+            "reply" => "sometimes",
+            "model" => "required|in:direct,group"
         ]);
         if ($validator->fails()) {
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
         }
         try {
             $user = Auth::user();
-            $to = User::find($request->to);
 
-            $conversation = $this->getConversation($user, $to);
+
+
+
+
             $files = $request->file("files");
             $urls = [];
             if ($request->hasFile("files")) {
@@ -55,16 +91,14 @@ class ChatController extends Controller
                     $urls[] = $uploaded;
                 }
             }
-            $message = $conversation->messages()->create([
-                "message" => $request->message,
-                "sender" => $user->id,
-                "type" => $request->type ?? "text",
-                "files" => count($urls) ? implode(",", $urls) : null,
-                "replied" => $request->reply ?? null
-            ]);
-            event(new SentDirectProcessed($message->load(["messageable" => function ($query) {
-                return $query->with(['userone', 'usertwo']);
-            }]), $request->to));
+
+            if ($request->model === 'direct') {
+                $message = $this->sendDirectMessage($user, $request->all(), $urls);
+            } else {
+                $message = $this->sendGroupMessage($user, $request->all(), $urls);
+            }
+
+
             return ["success" => true, "message" => $message->load(["replied"])];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];

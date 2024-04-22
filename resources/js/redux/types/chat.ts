@@ -42,6 +42,7 @@ export interface Message {
     pinned: boolean
     sender: number
     messageable_id: number
+    messageable_type: string
     messageable: Direct
     files: string | null
     replied?: Message

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\AddedToGroup;
 use App\Models\Group;
 use Illuminate\Http\Request;
 use Exception;
@@ -31,8 +32,12 @@ class GroupController extends Controller
 
             array_push($users, ...$request->users);
             // if (isset($request->users) && count($request->users)) {
+
             $group->users()->attach($users, ["added_by" => $user->id]);
             // }
+            foreach ($request->users as $u) {
+                event(new AddedToGroup($u, $group));
+            }
             return ["success" => true, "group" => $group];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];

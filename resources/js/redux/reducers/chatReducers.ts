@@ -79,16 +79,19 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
             return { loading: false, threads: action.payload.threads }
         case ChatsType.CHATS_ADD_MESSAGE:
             if (state.threads) {
-                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id)
-
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id && action.payload.message.messageable_type === `App\\Models\\${th.type}`)
                 if (editedThread >= 0) {
-                    //@ts-ignore
-                    const newThread: Direct = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
-                    if (action.payload.from && action.payload.from === "other") {
-                        newThread["unreaded_messages"] = newThread["unreaded_messages"] + 1;
+                    const isExistMessage = state.threads[editedThread].messages?.findIndex(m => m.id === action.payload.message?.id)
+                    if (isExistMessage === -1) {
+
+                        //@ts-ignore
+                        const newThread: Direct = { ...state.threads[editedThread], messages: [...state.threads[editedThread].messages, action.payload.message] }
+                        if (action.payload.from && action.payload.from === "other") {
+                            newThread["unreaded_messages"] = newThread["unreaded_messages"] + 1;
+                        }
+                        const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
+                        return { loading: false, threads: [newThread, ...oldThreads] }
                     }
-                    const oldThreads = state.threads.filter(th => th.id !== action.payload.message?.messageable_id)
-                    return { loading: false, threads: [newThread, ...oldThreads] }
                 } else {
                     if (action.payload.message) {
                         const newThread: Direct = { ...action.payload.message?.messageable, "messages": [action.payload.message] }
@@ -98,7 +101,11 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
             }
             return { ...state }
 
-
+        case ChatsType.CHATS_ADD_TO_GROUP:
+            if (state.threads) {
+                return { loading: false, threads: [action.payload, ...state.threads] }
+            }
+            return { ...state }
         case ChatsType.CHATS_PIN_MESSAGE:
             if (state.threads) {
                 const threads = [...state.threads]
