@@ -106,11 +106,11 @@ export const seenMessage = (id: number) => async (dispatch: ThunkDispatch<{}, {}
 }
 
 
-export const loadMoreMessage = (direct: number, page: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+export const loadMoreMessage = (id: number, model: string, page: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
     dispatch({ type: ChatsType.CHATS_LOADING })
 
     try {
-        const { data }: { data: PaginatedMessages } = await apiClient.post(route("chat.loadmore"), { direct, page })
+        const { data }: { data: PaginatedMessages } = await apiClient.post(route("chat.loadmore"), { id, model, page })
         // if (data && !data.success && data.errors) {
         //     dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
         //     return

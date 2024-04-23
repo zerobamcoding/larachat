@@ -202,7 +202,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
     useEffect(() => {
         if (scrollTop === 0 && thread && !isAnUser(thread) && thread.has_more) {
-            loadMoreMessage(thread.id, thread.page + 1)
+            loadMoreMessage(thread.id, thread.type, thread.page)
         }
 
     }, [scrollTop])
@@ -286,7 +286,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                         <div className='flex flex-row'>
 
                                                             <div className={`p-4 text-sm `}>
-                                                                {message.message}
+                                                                {message.message} {message.id}
                                                             </div>
                                                             <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
                                                                 <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>

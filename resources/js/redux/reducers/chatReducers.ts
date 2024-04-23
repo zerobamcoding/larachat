@@ -79,7 +79,7 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
             return { loading: false, threads: action.payload.threads }
         case ChatsType.CHATS_ADD_MESSAGE:
             if (state.threads) {
-                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id && action.payload.message.messageable_type === `App\\Models\\${th.type}`)
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.message?.messageable_id && action.payload.message.messageable_type.includes(th.type))
                 if (editedThread >= 0) {
                     const isExistMessage = state.threads[editedThread].messages?.findIndex(m => m.id === action.payload.message?.id)
                     if (isExistMessage === -1) {
@@ -136,7 +136,7 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
         case ChatsType.CHATS_LOAD_MORE_MESSAGES:
             if (state.threads) {
                 const threads = [...state.threads]
-                const editedThread = state.threads.findIndex(th => th.id === action.payload.direct)
+                const editedThread = state.threads.findIndex(th => th.id === action.payload.id && th.type === action.payload.model)
 
                 if (editedThread >= 0) {
                     threads[editedThread].messages = [...action.payload.messages, ...threads[editedThread].messages]

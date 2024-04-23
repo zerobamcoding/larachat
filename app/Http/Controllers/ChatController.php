@@ -165,14 +165,29 @@ class ChatController extends Controller
 
     public function loadmoreMessages(Request $request)
     {
-        /**
-         * @var User $user
-         */
-        $user = Auth::user();
-        $direct = Direct::find($request->direct);
-        $messages = $this->getThreadMessages($direct, $request->page * 20);
-        $has_more = $direct->messages()->where("id", "<", $messages[0]->id)->count();
-        return ["success" => true, "direct" => $request->direct, "messages" => $messages, "page" => $request->page, "has_more" => $has_more > 0];
+        $validator = Validator::make($request->all(), [
+            "id" => "required|integer",
+            "model" => "required|in:Direct,Group",
+            "page" => "required|integer"
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false, "errors" => $validator->errors()->getMessages()];
+        }
+        try {
+            if ($request->model === "Direct") {
+                $direct = Direct::find($request->id);
+                $messages = $this->getThreadMessages($direct, $request->page * 20);
+                $has_more = $direct->messages()->where("id", "<", $messages[0]->id)->count();
+            } else {
+                $group = Group::find($request->id);
+                $messages = $this->getThreadMessages($group, $request->page * 20);
+                $has_more = $group->messages()->where("id", "<", $messages[0]->id)->count();
+            }
+
+            return ["success" => true, "id" => $request->id, "model" => $request->model, "messages" => $messages, "page" => $request->page, "has_more" => $has_more > 0];
+        } catch (Exception $e) {
+            return ["success" => false, "errors" => $e];
+        }
     }
 
     public function getThreads()

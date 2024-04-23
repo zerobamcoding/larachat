@@ -16,7 +16,8 @@ export interface SentMessageResponse {
 
 export interface PaginatedMessages {
     success: boolean;
-    direct: number
+    id: number
+    model: string
     messages: Message[]
     page: number
     has_more: boolean
