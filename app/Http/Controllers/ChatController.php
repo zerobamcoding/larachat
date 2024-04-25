@@ -43,7 +43,7 @@ class ChatController extends Controller
         ]);
         event(new SentDirectProcessed($message->load(["messageable" => function ($query) {
             return $query->with(['userone', 'usertwo']);
-        }]), $data['to']));
+        }, "sender"]), $data['to']));
         return $message;
     }
 
@@ -58,7 +58,7 @@ class ChatController extends Controller
             "replied" => $data['reply'] ?? null
         ]);
 
-        event(new SentGroupMessage($message));
+        event(new SentGroupMessage($message->load["sender"]));
         return $message;
     }
 
@@ -136,7 +136,7 @@ class ChatController extends Controller
     {
         return $direct
             ->messages()
-            ->with(['replied'])
+            ->with(['replied', "sender"])
             ->latest()
             ->offset($offset)
             ->take($take)

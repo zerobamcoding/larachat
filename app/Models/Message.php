@@ -22,4 +22,9 @@ class Message extends Model
     {
         return $this->belongsTo(Message::class, "replied");
     }
+
+    public function sender()
+    {
+        return $this->belongsTo(User::class, "sender");
+    }
 }

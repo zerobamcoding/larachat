@@ -229,7 +229,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                                 ) : null
                                                     : <h2 className="text-sm font-semibold ">{th.name}</h2>}
                                                 <div className="flex">
-                                                    {th.messages && th.messages.length && th.messages[th.messages.length - 1].sender === user?.id ? (
+                                                    {th.messages && th.messages.length && th.messages[th.messages.length - 1].sender.id === user?.id ? (
                                                         th.messages[th.messages.length - 1].seen ? (
                                                             <IconChecks className='h-5' color='green' stroke={3} />
                                                         ) : (

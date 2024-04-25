@@ -9,8 +9,9 @@ interface AvatarProps {
     editable?: boolean
     user: User
     selected?: boolean
+    showBookmark?: boolean
 }
-const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false }) => {
+const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false, showBookmark = false }) => {
     const imageRef = useRef<HTMLInputElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { changeAvatar } = useActions();
@@ -26,12 +27,22 @@ const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected 
 
     return (
         <div className={`group relative overflow-hidden flex items-center justify-center w-${w} h-${h} text-xl font-semibold text-white bg-blue-500 rounded-full ${selected ? "ring-[3px] ring-blue-500 ring-offset-4" : ""}`}>
-            {user && user.id === me?.id ? (
-                <IconBookmark size={24} stroke={3} />
-            ) : user && user.avatar ? (
+            {user ? (
+                showBookmark ? (
+                    user.id === me?.id ? (
+                        <IconBookmark size={24} stroke={3} />
+                    ) : user && user.avatar ? (
 
-                <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
-            ) : (<p>{user?.username.slice(0, 1).toUpperCase()}</p>)}
+                        <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
+                    ) : (<p>{user?.username.slice(0, 1).toUpperCase()}</p>)
+                ) : (
+                    user.avatar ? (
+
+                        <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
+                    ) : (<p>{user?.username.slice(0, 1).toUpperCase()}</p>)
+                )
+            ) : null}
+
             {editable && (
                 <>
                     <div

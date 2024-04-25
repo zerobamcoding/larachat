@@ -41,7 +41,7 @@ export interface Message {
     message: string
     seen: boolean
     pinned: boolean
-    sender: number
+    sender: User
     messageable_id: number
     messageable_type: string
     messageable: Direct
