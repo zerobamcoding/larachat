@@ -18,8 +18,9 @@ interface PageProps {
     removeReply: () => void
     showInfo: () => void
     onlines: number[]
+    showGroupInfo: () => void
 }
-const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines }) => {
+const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines, showGroupInfo }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage, seenMessage, loadMoreMessage } = useActions()
@@ -221,8 +222,15 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                 <div className="z-20 flex flex-grow-0 flex-shrink-0 w-full pr-3  text-gray-600 dark:text-white">
                     <div className='mx-4 my-2'>
                         {isGroup(thread) ? (
-                            <div className={`group relative overflow-hidden flex items-center justify-center w-12 h-12 text-xl font-semibold text-white bg-blue-500 rounded-full `}>
-                                <p>{thread.name.slice(0, 1).toUpperCase()}</p>
+                            <div className='flex flex-row items-center space-x-3' onClick={() => showGroupInfo()}>
+
+                                <div className={`group relative overflow-hidden flex items-center justify-center w-12 h-12 text-xl font-semibold text-white bg-blue-500 rounded-full `}>
+                                    <p>{thread.name.slice(0, 1).toUpperCase()}</p>
+                                </div>
+                                <div className='flex flex-col'>
+                                    <h3>{thread.name}</h3>
+                                    <span className='font-extralight text-xs'>{thread.members_count} members</span>
+                                </div>
                             </div>
                         ) : null}
                         {contact && (

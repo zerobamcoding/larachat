@@ -12,18 +12,23 @@ class Group extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $appends = ['type', 'unreaded_messages'];
+    protected $appends = ['type', 'unreaded_messages', 'members_count'];
 
     public function getTypeAttribute()
     {
         return "Group";
     }
 
+
     public function users()
     {
-        return $this->belongsToMany(User::class, 'group_user');
+        return $this->belongsToMany(User::class, 'group_user')->withPivot(['is_admin']);
     }
 
+    public function getMembersCountAttribute()
+    {
+        return $this->users()->count();
+    }
 
     public function messages(): MorphMany
     {

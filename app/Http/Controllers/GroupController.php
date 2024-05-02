@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\Validator;
 
 class GroupController extends Controller
 {
+    public function getGroupMembers(Request $request)
+    {
+        $user = Auth::user();
+        $group = Group::find($request->id);
+        if ($group->users->contains($user->id)) {
+            return ["success" => true, 'members' => $group->users, 'id' => $request->id];
+        } else {
+            return ["success" => false];
+        }
+    }
     public function createNewGroup(Request $request)
     {
         $validator = Validator::make($request->all(), [

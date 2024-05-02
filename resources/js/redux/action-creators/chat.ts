@@ -4,7 +4,7 @@ import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
 import { Message, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
-import { Group } from "../types/group";
+import { GetGroupMembersPayload, Group } from "../types/group";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
     dispatch({ type: SearchUserType.SEARCH_LOADING })
@@ -140,6 +140,21 @@ export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActi
     }
 }
 
+
+export const getGroupMembersAction = (id: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: GetGroupMembersPayload } = await apiClient.get(route("group.members", { id }))
+        if (data && data.success) {
+
+            dispatch({ type: ChatsType.CHATS_GET_GROUP_MEMBERS, payload: data })
+        }
+    } catch (error) {
+        console.log(error);
+
+    }
+}
 
 export const addOnlineUsersAction = (data: number[]) => async (dispatch: ThunkDispatch<{}, {}, OnlineUsersActions>) => {
     dispatch({ type: OnlineUsersType.ADD_ONLINE_USERS, payload: data })

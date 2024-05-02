@@ -79,6 +79,7 @@ Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(f
 });
 
 Route::controller(GroupController::class)->prefix("group")->name('group.')->group(function () {
+    Route::get('/members/{id}', 'getGroupMembers')->name("members")->middleware("auth:sanctum");
     Route::post('/new_group', 'createNewGroup')->name("new")->middleware("auth:sanctum");
 });
 

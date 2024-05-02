@@ -13,6 +13,7 @@ import Modal from '@/utils/Modal'
 import GroupName from '@/Components/Modals/GroupName'
 import { Group } from '@/redux/types/group'
 import { isDirect, isGroup } from '@/utils/CheckType'
+import GroupInfo from '@/Components/Modals/GroupInfo'
 
 interface TypingThreadTypes {
     thread: number
@@ -32,6 +33,7 @@ const Base = () => {
     const [reply, setReply] = useState<Message | null>(null)
     const [isShowUserInfo, setIsShowUserInfo] = useState(false)
     const [isShowCreateGropModal, setIsShowCreateGropModal] = useState(false)
+    const [isShowGroupInfoModal, setIsShowGroupInfoModal] = useState(false)
     const [contacts, setContacts] = useState<User[]>([])
 
     useEffect(() => {
@@ -133,6 +135,7 @@ const Base = () => {
                 removeReply={() => setReply(null)}
                 showInfo={() => setIsShowUserInfo(!isShowUserInfo)}
                 onlines={onlines}
+                showGroupInfo={() => setIsShowGroupInfoModal(true)}
             />
 
             {/* {isShowUserInfo && (
@@ -154,6 +157,12 @@ const Base = () => {
             )} */}
             <Modal show={isShowCreateGropModal} close={() => setIsShowCreateGropModal(false)} >
                 <GroupName close={() => setIsShowCreateGropModal(false)} contacts={contacts} />
+            </Modal>
+            <Modal show={isShowGroupInfoModal} close={() => setIsShowGroupInfoModal(false)} >
+                {selectedThread && isGroup(selectedThread) ? (
+
+                    <GroupInfo close={() => setIsShowGroupInfoModal(false)} group={selectedThread} />
+                ) : null}
             </Modal>
         </div>
     )
