@@ -20,7 +20,7 @@ export interface Group {
     id: number
     name: string
     description?: string
-    creator: User
+    creator: number
     messages?: Message[]
     unreaded_messages: number
     has_more: boolean

@@ -57,7 +57,12 @@ const Base = () => {
         }
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
-            setSelectedThread({ ...selectedThread, messages: updateSelectedThred.messages, has_more: updateSelectedThred.has_more, page: updateSelectedThred.page })
+            let newData = { ...selectedThread, messages: updateSelectedThred.messages, has_more: updateSelectedThred.has_more, page: updateSelectedThred.page }
+            if (isGroup(updateSelectedThred)) {
+                //@ts-ignore
+                newData = { ...newData, members: [...updateSelectedThred.members] }
+            }
+            setSelectedThread(newData)
         }
     }, [threads])
 
@@ -159,9 +164,9 @@ const Base = () => {
                 <GroupName close={() => setIsShowCreateGropModal(false)} contacts={contacts} />
             </Modal>
             <Modal show={isShowGroupInfoModal} close={() => setIsShowGroupInfoModal(false)} >
-                {selectedThread && isGroup(selectedThread) ? (
+                {selectedThread && isGroup(selectedThread) && user ? (
 
-                    <GroupInfo close={() => setIsShowGroupInfoModal(false)} group={selectedThread} />
+                    <GroupInfo close={() => setIsShowGroupInfoModal(false)} group={selectedThread} user={user} />
                 ) : null}
             </Modal>
         </div>

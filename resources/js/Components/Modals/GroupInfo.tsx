@@ -3,15 +3,22 @@ import { IconX, IconStarFilled } from '@tabler/icons-react'
 import React, { useEffect } from 'react'
 import { useActions } from '@/hooks/useActions'
 import Avatar from '../Avatar'
+import { User } from '@/redux/types/user'
 interface PageProps {
     close: () => void
     group: Group
+    user: User
 }
-const GroupInfo: React.FC<PageProps> = ({ close, group }) => {
-    const { getGroupMembersAction } = useActions()
+const GroupInfo: React.FC<PageProps> = ({ close, group, user }) => {
+    const { getGroupMembersAction, updateGroupAdmins } = useActions()
     useEffect(() => {
         getGroupMembersAction(group.id)
     }, [])
+
+    const changeGroupAdmins = (admin: number, is_admin: boolean) => {
+        if (user.id === group.creator)
+            updateGroupAdmins(group.id, admin, is_admin)
+    }
     return (
         <div className='flex flex-col'>
             <div className='flex flex-row justify-between mb-6 p-5 pb-0 h-fit'>
@@ -30,7 +37,10 @@ const GroupInfo: React.FC<PageProps> = ({ close, group }) => {
                             <Avatar h={8} w={8} user={user} />
                             <span>{user.username}</span>
                         </div>
-                        <IconStarFilled stroke={3} width={20} color={user.pivot.is_admin ? 'yellow' : 'gray'} />
+                        {group.creator !== user.id ? (
+
+                            <IconStarFilled stroke={3} width={20} color={user.pivot.is_admin ? 'orange' : 'gray'} onClick={() => changeGroupAdmins(user.id, !user.pivot.is_admin)} />
+                        ) : null}
                     </div>
                 ))}
             </div>

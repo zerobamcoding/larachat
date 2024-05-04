@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\AddedToGroup;
 use App\Models\Group;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -49,6 +50,32 @@ class GroupController extends Controller
                 event(new AddedToGroup($u, $group));
             }
             return ["success" => true, "group" => $group];
+        } catch (Exception $e) {
+            return ["success" => false, "errors" => $e];
+        }
+    }
+
+
+    public function changeAdmin(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "id" => "required|exists:groups,id",
+            "user" => "required|exists:users,id",
+            "is_admin" => "required|boolean"
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false, "errors" => $validator->errors()->getMessages()];
+        }
+        try {
+            $user = Auth::user();
+            $group = Group::find($request->id);
+            $admin = User::find($request->user);
+            if ($group->creator === $user->id) {
+                $group->users()->updateExistingPivot($admin, ['is_admin' => $request->is_admin], false);
+                return ["success" => true, 'members' => $group->users, 'id' => $request->id];
+            } else {
+                return ["success" => false];
+            }
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];
         }
