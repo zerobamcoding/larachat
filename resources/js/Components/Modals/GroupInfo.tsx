@@ -8,8 +8,10 @@ interface PageProps {
     close: () => void
     group: Group
     user: User
+    showCTXMenu: (v: boolean) => void
+    changeMenuPosition: (v: { x: number, y: number }) => void
 }
-const GroupInfo: React.FC<PageProps> = ({ close, group, user }) => {
+const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, changeMenuPosition }) => {
     const { getGroupMembersAction, updateGroupAdmins } = useActions()
     useEffect(() => {
         getGroupMembersAction(group.id)
@@ -19,6 +21,14 @@ const GroupInfo: React.FC<PageProps> = ({ close, group, user }) => {
         if (user.id === group.creator)
             updateGroupAdmins(group.id, admin, is_admin)
     }
+
+    const showMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, user: User) => {
+        e.preventDefault()
+        changeMenuPosition({ x: e.pageX, y: e.pageY });
+        // selectedMessageCTX(message)
+        showCTXMenu(true)
+    }
+
     return (
         <div className='flex flex-col'>
             <div className='flex flex-row justify-between mb-6 p-5 pb-0 h-fit'>
@@ -30,7 +40,7 @@ const GroupInfo: React.FC<PageProps> = ({ close, group, user }) => {
                 </div>
                 <IconX className='h-5 cursor-pointer' onClick={() => close()} />
             </div>
-            <div className='h-full flex flex-col'>
+            <div className='h-full flex flex-col' onContextMenu={e => showMenu(e, user)}>
                 {group.members?.map(user => (
                     <div key={user.id} className='flex flex-row justify-between p-3 hover:bg-slate-50'>
                         <div className='flex space-x-3'>

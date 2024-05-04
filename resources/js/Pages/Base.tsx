@@ -14,6 +14,8 @@ import GroupName from '@/Components/Modals/GroupName'
 import { Group } from '@/redux/types/group'
 import { isDirect, isGroup } from '@/utils/CheckType'
 import GroupInfo from '@/Components/Modals/GroupInfo'
+import MessageMenu from '@/Components/Menu/MessageMenu'
+import GroupUserMenu from '@/Components/Menu/GroupUserMenu'
 
 interface TypingThreadTypes {
     thread: number
@@ -28,6 +30,7 @@ const Base = () => {
 
     const [selectedThread, setSelectedThread] = useState<User | Direct | Group | null>(null)
     const [isShowCTXMenu, setIsShowCTXMenu] = useState(false)
+    const [isShowGroupUserCTXMenu, setIsShowGroupUserCTXMenu] = useState(false)
     const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
     const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
     const [reply, setReply] = useState<Message | null>(null)
@@ -149,24 +152,41 @@ const Base = () => {
                     close={() => setIsShowUserInfo(false)}
                     onlines={onlines}
                 />
-            )}
+            )}*/}
 
             {isShowCTXMenu && selectedMessageCTX && (
                 <RightClickMenu
                     position={positionCTXMenu}
                     close={() => setIsShowCTXMenu(false)}
-                    message={selectedMessageCTX}
-                    reply={setReply}
-                    pin={pinMessageHandler}
-                />
-            )} */}
+                >
+                    <MessageMenu
+                        message={selectedMessageCTX}
+                        reply={setReply}
+                        pin={pinMessageHandler}
+                    />
+                </RightClickMenu>
+            )}
+
+            {isShowGroupUserCTXMenu && (
+                <RightClickMenu
+                    position={positionCTXMenu}
+                    close={() => setIsShowGroupUserCTXMenu(false)}
+                >
+                    <GroupUserMenu />
+                </RightClickMenu>
+            )}
             <Modal show={isShowCreateGropModal} close={() => setIsShowCreateGropModal(false)} >
                 <GroupName close={() => setIsShowCreateGropModal(false)} contacts={contacts} />
             </Modal>
             <Modal show={isShowGroupInfoModal} close={() => setIsShowGroupInfoModal(false)} >
                 {selectedThread && isGroup(selectedThread) && user ? (
 
-                    <GroupInfo close={() => setIsShowGroupInfoModal(false)} group={selectedThread} user={user} />
+                    <GroupInfo
+                        close={() => setIsShowGroupInfoModal(false)}
+                        group={selectedThread}
+                        user={user}
+                        showCTXMenu={setIsShowGroupUserCTXMenu}
+                        changeMenuPosition={setPositionCTXMenu} />
                 ) : null}
             </Modal>
         </div>
