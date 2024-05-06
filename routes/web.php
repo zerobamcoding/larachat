@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Direct;
 use App\Models\User;
+use App\Models\Group;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,12 +45,15 @@ Route::get("/test", function () {
 
     // ]);
     // dd($direct->messages);
-    $user = User::find(2);
-    $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
-        ->get()
-        ->makeHidden(['user_one', "user_two"])
-        ->toArray();
-    dd($directs);
+    // $user = User::find(2);
+    // $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
+    //     ->get()
+    //     ->makeHidden(['user_one', "user_two"])
+    //     ->toArray();
+    // dd($directs);
+    // $group = Group::find(4);
+    // $user = User::find(1);
+    // $group->users()->attach($user);
 });
 
 Route::controller(Authenticate::class)->prefix("auth")->name('auth.')->group(function () {
@@ -82,6 +86,7 @@ Route::controller(GroupController::class)->prefix("group")->name('group.')->grou
     Route::get('/members/{id}', 'getGroupMembers')->name("members")->middleware("auth:sanctum");
     Route::post('/new_group', 'createNewGroup')->name("new")->middleware("auth:sanctum");
     Route::post('/admin', 'changeAdmin')->name("change.admin")->middleware("auth:sanctum");
+    Route::post('/remove-user', 'removeGroupUser')->name("remove.user")->middleware("auth:sanctum");
 });
 
 

@@ -10,8 +10,9 @@ interface PageProps {
     user: User
     showCTXMenu: (v: boolean) => void
     changeMenuPosition: (v: { x: number, y: number }) => void
+    selectUser: React.Dispatch<React.SetStateAction<User | null>>
 }
-const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, changeMenuPosition }) => {
+const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, changeMenuPosition, selectUser }) => {
     const { getGroupMembersAction, updateGroupAdmins } = useActions()
     useEffect(() => {
         getGroupMembersAction(group.id)
@@ -25,7 +26,7 @@ const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, chang
     const showMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, user: User) => {
         e.preventDefault()
         changeMenuPosition({ x: e.pageX, y: e.pageY });
-        // selectedMessageCTX(message)
+        selectUser(user)
         showCTXMenu(true)
     }
 
@@ -40,16 +41,24 @@ const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, chang
                 </div>
                 <IconX className='h-5 cursor-pointer' onClick={() => close()} />
             </div>
-            <div className='h-full flex flex-col' onContextMenu={e => showMenu(e, user)}>
-                {group.members?.map(user => (
-                    <div key={user.id} className='flex flex-row justify-between p-3 hover:bg-slate-50'>
+            <div className='h-full flex flex-col' >
+                {group.members?.map(member => (
+                    <div key={member.id}
+                        className='flex flex-row justify-between p-3 hover:bg-slate-50'
+                        onContextMenu={e => showMenu(e, member)}>
                         <div className='flex space-x-3'>
-                            <Avatar h={8} w={8} user={user} />
-                            <span>{user.username}</span>
+                            <Avatar h={8} w={8} user={member} />
+                            <span>{member.username}</span>
                         </div>
-                        {group.creator !== user.id ? (
+                        {group.creator !== member.id ? (
 
-                            <IconStarFilled stroke={3} width={20} color={user.pivot.is_admin ? 'orange' : 'gray'} onClick={() => changeGroupAdmins(user.id, !user.pivot.is_admin)} />
+                            <IconStarFilled
+                                className='cursor-pointer'
+                                stroke={3}
+                                width={20}
+                                color={member.pivot.is_admin ? 'orange' : 'gray'}
+                                onClick={() => changeGroupAdmins(member.id, !member.pivot.is_admin)}
+                            />
                         ) : null}
                     </div>
                 ))}

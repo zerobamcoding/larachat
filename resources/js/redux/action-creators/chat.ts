@@ -171,6 +171,21 @@ export const updateGroupAdmins = (id: number, user: number, is_admin: boolean) =
     }
 }
 
+
+export const removeGroupUserAction = (id: number, user: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: GetGroupMembersPayload } = await apiClient.post(route("group.remove.user"), { id, user })
+        if (data && data.success) {
+
+            dispatch({ type: ChatsType.CHATS_GET_GROUP_MEMBERS, payload: data })
+        }
+    } catch (error) {
+        console.log(error);
+
+    }
+}
 export const addOnlineUsersAction = (data: number[]) => async (dispatch: ThunkDispatch<{}, {}, OnlineUsersActions>) => {
     dispatch({ type: OnlineUsersType.ADD_ONLINE_USERS, payload: data })
 }

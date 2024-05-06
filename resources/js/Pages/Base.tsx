@@ -33,6 +33,7 @@ const Base = () => {
     const [isShowGroupUserCTXMenu, setIsShowGroupUserCTXMenu] = useState(false)
     const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
     const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
+    const [selectedUserGroupCTX, setSelectedUserGroupCTX] = useState<User | null>(null)
     const [reply, setReply] = useState<Message | null>(null)
     const [isShowUserInfo, setIsShowUserInfo] = useState(false)
     const [isShowCreateGropModal, setIsShowCreateGropModal] = useState(false)
@@ -172,7 +173,10 @@ const Base = () => {
                     position={positionCTXMenu}
                     close={() => setIsShowGroupUserCTXMenu(false)}
                 >
-                    <GroupUserMenu />
+                    {selectedUserGroupCTX && selectedThread ? (
+
+                        <GroupUserMenu user={selectedUserGroupCTX} group_id={selectedThread?.id} closeMenu={() => setIsShowGroupUserCTXMenu(false)} />
+                    ) : null}
                 </RightClickMenu>
             )}
             <Modal show={isShowCreateGropModal} close={() => setIsShowCreateGropModal(false)} >
@@ -186,7 +190,8 @@ const Base = () => {
                         group={selectedThread}
                         user={user}
                         showCTXMenu={setIsShowGroupUserCTXMenu}
-                        changeMenuPosition={setPositionCTXMenu} />
+                        changeMenuPosition={setPositionCTXMenu}
+                        selectUser={setSelectedUserGroupCTX} />
                 ) : null}
             </Modal>
         </div>

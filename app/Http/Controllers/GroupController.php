@@ -80,4 +80,14 @@ class GroupController extends Controller
             return ["success" => false, "errors" => $e];
         }
     }
+
+    public function removeGroupUser(Request $request)
+    {
+        $group = Group::find($request->id);
+        $remove_user = User::find($request->user);
+
+        $group->users()->detach($remove_user);
+        $group->save();
+        return ["success" => true, 'members' => $group->users, 'id' => $request->id];
+    }
 }
