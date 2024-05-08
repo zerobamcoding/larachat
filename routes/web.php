@@ -80,6 +80,7 @@ Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(f
     Route::post('/pin', 'pinMessage')->name("pin")->middleware("auth:sanctum");
     Route::post('/seen', 'seenMessage')->name("seen")->middleware("auth:sanctum");
     Route::post('/loadmore', 'loadmoreMessages')->name("loadmore")->middleware("auth:sanctum");
+    Route::post('/remove-message', 'removeMessage')->name("remove.message")->middleware("auth:sanctum");
 });
 
 Route::controller(GroupController::class)->prefix("group")->name('group.')->group(function () {

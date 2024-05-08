@@ -155,15 +155,18 @@ const Base = () => {
                 />
             )}*/}
 
-            {isShowCTXMenu && selectedMessageCTX && (
+            {isShowCTXMenu && selectedMessageCTX && selectedThread && user && (
                 <RightClickMenu
                     position={positionCTXMenu}
                     close={() => setIsShowCTXMenu(false)}
                 >
                     <MessageMenu
+                        close={() => setIsShowCTXMenu(false)}
                         message={selectedMessageCTX}
                         reply={setReply}
                         pin={pinMessageHandler}
+                        thread={selectedThread}
+                        user={user}
                     />
                 </RightClickMenu>
             )}

@@ -2,10 +2,24 @@ import { Message } from "./chat"
 import { User, ValidationErrors } from "./user"
 
 
+export interface RemoveMessagePayload {
+    success: boolean
+    message?: number
+    id?: number
+    type?: "Group" | "Direct"
+    errors?: ValidationErrors
+}
+
 export interface GetGroupMembersPayload {
     success: boolean
     members?: User[]
     id?: number
+}
+
+interface Pivot {
+    user_id: number
+    group_id: number
+    is_admin: boolean
 }
 export interface MakeNewGroupPayload {
     success: boolean
@@ -13,7 +27,7 @@ export interface MakeNewGroupPayload {
     errors?: ValidationErrors
 }
 
-type UserWithPivot = User & { pivot: { is_admin: boolean } }
+type UserWithPivot = User & { pivot: Pivot }
 
 export interface Group {
     type: "Group"
@@ -27,6 +41,7 @@ export interface Group {
     members_count: number
     members: UserWithPivot[]
     page: number
+    pivot: Pivot
     created_at: Date
     updated_at: Date
 }

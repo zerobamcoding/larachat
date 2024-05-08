@@ -4,7 +4,7 @@ import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
 import { Message, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
-import { GetGroupMembersPayload, Group } from "../types/group";
+import { GetGroupMembersPayload, Group, RemoveMessagePayload } from "../types/group";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
     dispatch({ type: SearchUserType.SEARCH_LOADING })
@@ -117,6 +117,24 @@ export const loadMoreMessage = (id: number, model: string, page: number) => asyn
         // }
 
         dispatch({ type: ChatsType.CHATS_LOAD_MORE_MESSAGES, payload: data })
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
+export const removeMessageAction = (id: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: RemoveMessagePayload } = await apiClient.post(route("chat.remove.message"), { id })
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
+            return
+        }
+
+        dispatch({ type: ChatsType.CHATS_REMOVE_MESSAGE, payload: data })
 
     } catch (error) {
         console.log(error);

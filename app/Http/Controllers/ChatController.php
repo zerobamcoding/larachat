@@ -254,4 +254,28 @@ class ChatController extends Controller
             return ["success" => false, "errors" => $e];
         }
     }
+
+    public function removeMessage(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "id" => "required|exists:messages,id",
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false, "errors" => $validator->errors()->getMessages()];
+        }
+        try {
+            $message = Message::find($request->id);
+            $thread = $message->messageable;
+            if ($message->type === 'file') {
+                $exploded = explode(",", $message->files);
+                foreach ($exploded as $file) {
+                    unlink(storage_path('app/public/' . $file));
+                }
+            }
+            $message->delete();
+            return ["success" => true, "message" => $request->id, "type" => $thread->type, "id" => $thread->id];
+        } catch (Exception $e) {
+            return ["success" => false, "errors" => $e];
+        }
+    }
 }
