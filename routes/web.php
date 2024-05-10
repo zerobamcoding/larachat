@@ -54,6 +54,9 @@ Route::get("/test", function () {
     // $group = Group::find(4);
     // $user = User::find(1);
     // $group->users()->attach($user);
+    $rand = sha1(uniqid(mt_rand()));
+    dd(base_convert($rand, 16, 36), $rand);
+    // dd(substr(base_convert(sha1(uniqid(mt_rand())), 8, 16), 0, rand(5, 12)));
 });
 
 Route::controller(Authenticate::class)->prefix("auth")->name('auth.')->group(function () {

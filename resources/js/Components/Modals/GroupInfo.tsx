@@ -15,8 +15,9 @@ interface PageProps {
 const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, changeMenuPosition, selectUser }) => {
     const { getGroupMembersAction, updateGroupAdmins } = useActions()
     useEffect(() => {
-        getGroupMembersAction(group.id)
-    }, [])
+        if (!group.members)
+            getGroupMembersAction(group.id)
+    }, [group])
 
     const changeGroupAdmins = (admin: number, is_admin: boolean) => {
         if (user.id === group.creator)

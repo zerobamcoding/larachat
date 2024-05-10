@@ -147,13 +147,13 @@ const Base = () => {
                 showGroupInfo={() => setIsShowGroupInfoModal(true)}
             />
 
-            {/* {isShowUserInfo && (
+            {isShowUserInfo && (
                 <UserInfo
                     thread={selectedThread}
                     close={() => setIsShowUserInfo(false)}
                     onlines={onlines}
                 />
-            )}*/}
+            )}
 
             {isShowCTXMenu && selectedMessageCTX && selectedThread && user && (
                 <RightClickMenu
