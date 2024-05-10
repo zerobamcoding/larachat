@@ -11,7 +11,7 @@ interface PageProps {
     close: () => void
     onlines: number[]
 }
-const UserInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
+const ThreadInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
     const [userObject, setUserObject] = useState<User | null>(null)
     const { user: me } = useTypedSelector(state => state.me)
 
@@ -142,4 +142,4 @@ const UserInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
     )
 }
 
-export default UserInfo
+export default ThreadInfo

@@ -1,6 +1,6 @@
 import Messages from '@/Components/Messages'
 import ThreadsList from '@/Components/ThreadsList'
-import UserInfo from '@/Components/UserInfo'
+import ThreadInfo from '@/Components/ThreadInfo'
 import { useEffect, useState } from 'react'
 import { router } from '@inertiajs/react'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
@@ -148,7 +148,7 @@ const Base = () => {
             />
 
             {isShowUserInfo && (
-                <UserInfo
+                <ThreadInfo
                     thread={selectedThread}
                     close={() => setIsShowUserInfo(false)}
                     onlines={onlines}
