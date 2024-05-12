@@ -13,6 +13,7 @@ class Group extends Model
     use HasFactory;
     protected $guarded = [];
     protected $appends = ['type', 'unreaded_messages', 'members_count'];
+    protected $hidden = ['link'];
 
     public function getTypeAttribute()
     {

@@ -6,6 +6,7 @@ import Avatar from './Avatar'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import { Group } from '@/redux/types/group'
 import { isDirect, isGroup } from '@/utils/CheckType'
+import apiClient from '@/libs/apiClient'
 interface PageProps {
     thread: User | Direct | null | Group
     close: () => void
@@ -20,6 +21,14 @@ const ThreadInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
             me.id === thread.userone.id ? setUserObject(thread.usertwo) : setUserObject(thread.userone)
         }
     }, [thread])
+
+    const getGroupLinkHandler = async () => {
+        if (thread) {
+
+            const { data } = await apiClient.post(route('group.link'), { id: thread.id })
+            navigator.clipboard.writeText(`larachat.me/${data.link}`)
+        }
+    }
     return (
         <nav className="right-0 flex flex-col pb-2 bg-white dark:bg-slate-800/90  text-black dark:text-white" style={{ width: "24rem" }}>
             <div className="flex items-center justify-between w-full p-3">
@@ -40,7 +49,7 @@ const ThreadInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
             <div>
                 <div className="flex justify-center mb-4">
 
-                    {userObject ? <Avatar h={32} w={32} user={userObject} /> : isGroup(thread) ? (
+                    {userObject ? <Avatar h={12} w={12} user={userObject} /> : isGroup(thread) ? (
                         <div className={`group relative overflow-hidden flex items-center justify-center w-12 h-12 text-xl font-semibold text-white bg-blue-500 rounded-full `}>
                             <p>{thread.name.slice(0, 1).toUpperCase()}</p>
                         </div>
@@ -106,7 +115,7 @@ const ThreadInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
                 </>
             ) : isGroup(thread) ? (
                 <div className='mb-10'>
-                    <div className="flex items-center w-full px-3 mt-4 cursor-pointer">
+                    <div className="flex items-center w-full px-3 mt-4 cursor-pointer" onClick={getGroupLinkHandler}>
                         <div className="px-2 rounded-full hover:text-gray-600">
                             <AtSymbolIcon className='h-6' />
                         </div>

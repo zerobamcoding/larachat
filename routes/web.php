@@ -54,9 +54,7 @@ Route::get("/test", function () {
     // $group = Group::find(4);
     // $user = User::find(1);
     // $group->users()->attach($user);
-    $rand = sha1(uniqid(mt_rand()));
-    dd(base_convert($rand, 16, 36), $rand);
-    // dd(substr(base_convert(sha1(uniqid(mt_rand())), 8, 16), 0, rand(5, 12)));
+    // dd(substr(base_convert(sha1(uniqid(mt_rand())), 8, 16), 0, 6));
 });
 
 Route::controller(Authenticate::class)->prefix("auth")->name('auth.')->group(function () {
@@ -84,6 +82,7 @@ Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(f
     Route::post('/seen', 'seenMessage')->name("seen")->middleware("auth:sanctum");
     Route::post('/loadmore', 'loadmoreMessages')->name("loadmore")->middleware("auth:sanctum");
     Route::post('/remove-message', 'removeMessage')->name("remove.message")->middleware("auth:sanctum");
+    Route::post('/get-thread', 'getThread')->name("search.thread")->middleware("auth:sanctum");
 });
 
 Route::controller(GroupController::class)->prefix("group")->name('group.')->group(function () {
@@ -91,6 +90,7 @@ Route::controller(GroupController::class)->prefix("group")->name('group.')->grou
     Route::post('/new_group', 'createNewGroup')->name("new")->middleware("auth:sanctum");
     Route::post('/admin', 'changeAdmin')->name("change.admin")->middleware("auth:sanctum");
     Route::post('/remove-user', 'removeGroupUser')->name("remove.user")->middleware("auth:sanctum");
+    Route::post('/link', 'getLink')->name("link")->middleware("auth:sanctum");
 });
 
 

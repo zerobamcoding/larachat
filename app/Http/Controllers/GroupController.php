@@ -81,6 +81,11 @@ class GroupController extends Controller
         }
     }
 
+    public function generateLink()
+    {
+        return substr(base_convert(sha1(uniqid(mt_rand())), 8, 16), 0, 6);
+    }
+
     public function removeGroupUser(Request $request)
     {
         $group = Group::find($request->id);
@@ -89,5 +94,19 @@ class GroupController extends Controller
         $group->users()->detach($remove_user);
         $group->save();
         return ["success" => true, 'members' => $group->users, 'id' => $request->id];
+    }
+
+    public function getLink(Request $request)
+    {
+        $group = Group::find($request->id);
+        if (is_null($group->link)) {
+
+            $hash = $this->generateLink();
+            $group->link = $hash;
+            $group->save();
+        } else {
+            $hash = $group->link;
+        }
+        return ["success" => true, 'link' => $hash];
     }
 }

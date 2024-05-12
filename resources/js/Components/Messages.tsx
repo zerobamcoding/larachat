@@ -9,6 +9,7 @@ import SendFile from './Modals/SendFile'
 import Avatar from './Avatar'
 import { isAnUser, isDirect, isGroup } from '@/utils/CheckType'
 import { Group } from '@/redux/types/group'
+import apiClient from '@/libs/apiClient'
 interface PageProps {
     thread: User | Direct | Group | null
     showCTXMenu: (v: boolean) => void
@@ -19,8 +20,9 @@ interface PageProps {
     showInfo: () => void
     onlines: number[]
     showGroupInfo: () => void
+    selectThread: React.Dispatch<React.SetStateAction<User | Direct | Group | null>>
 }
-const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines, showGroupInfo }) => {
+const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines, showGroupInfo, selectThread }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { sendMessage, seenMessage, loadMoreMessage } = useActions()
@@ -36,7 +38,6 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
     const [isSeen, setIsSeen] = useState<number[]>([])
     const [contact, setContact] = useState<User | null>(null)
     const monthName = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
 
 
 
@@ -63,6 +64,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         }
         scrollToView(ref)
     }, [thread])
+
+    useEffect(() => {
+        console.log(contact)
+    }, [contact])
 
     const sendMessageHandler = () => {
         const formData = new FormData();
@@ -111,8 +116,6 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
     useEffect(() => {
         if (me && thread) {
-            //@ts-ignore
-
             if (isTyping) {
                 //@ts-ignore
                 window.Echo.private(`user.${contact?.id}`).whisper('typing', { thread: thread.id, typing: true })
@@ -122,8 +125,6 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
     const stopWhispering = () => {
         if (me && thread) {
-            //@ts-ignore
-
             if (isTyping) {
                 //@ts-ignore
                 window.Echo.private(`user.${contact?.id}`).whisper('typing', { thread: thread.id, typing: false })
@@ -215,6 +216,17 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             seenMessage(isSeen[isSeen.length - 1])
         }
     }, [isSeen])
+
+    const searchThreadHandler = async (str: string) => {
+        const regex = /^(@|larachat.me\/)/
+        const username = str.replace(regex, "");
+        const { data } = await apiClient.post(route("chat.search.thread"), { link: username })
+        if (data.thread) {
+            selectThread(data.thread);
+
+        }
+
+    }
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
             {thread && (
@@ -233,13 +245,16 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                 </div>
                             </div>
                         ) : null}
-                        {contact && (
+                        {isDirect(thread) && contact && (
 
                             <Avatar h={12} w={12} user={contact} />
                         )}
                     </div>
                     <div className="flex flex-col justify-center flex-1 overflow-hidden cursor-pointer">
-                        <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap first-letter:uppercase">{contact?.name ?? contact?.username}</div>
+                        {isDirect(thread) ? (
+
+                            <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap first-letter:uppercase">{contact?.name ?? contact?.username}</div>
+                        ) : null}
                         {contact && onlines.includes(contact.id) && (
 
                             <div className="overflow-hidden text-sm font-medium leading-tight  whitespace-no-wrap">Online</div>
@@ -302,7 +317,10 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                             <div className='flex flex-row'>
 
                                                                 <div className={`p-4 text-sm `}>
-                                                                    {message.message}
+                                                                    {message.message.split(" ").map(str => (
+                                                                        /^(@|larachat.me)\S+/gm.test(str) ? <span onClick={() => searchThreadHandler(str)} className='text-blue-400 cursor-pointer hover:underline'>{`${str} `}</span> : `${str} `
+                                                                    ))}
+
                                                                 </div>
                                                                 <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
                                                                     <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>

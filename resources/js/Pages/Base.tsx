@@ -88,7 +88,7 @@ const Base = () => {
                 .listen(".new-message", (e: any) => { addMessage(e.message, "other") })
                 .listen(".online-users", changeOnlineUsersHandler)
                 .listen(".add-to-group", addedToGroupHandler)
-                .listenForWhisper("typing", (e: TypingThreadTypes) => { typingThreadHandler(e) })
+                .listenForWhisper("typing", typingThreadHandler)
         }
 
     }, [user])
@@ -145,6 +145,7 @@ const Base = () => {
                 showInfo={() => setIsShowUserInfo(!isShowUserInfo)}
                 onlines={onlines}
                 showGroupInfo={() => setIsShowGroupInfoModal(true)}
+                selectThread={setSelectedThread}
             />
 
             {isShowUserInfo && (

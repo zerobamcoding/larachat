@@ -16,6 +16,17 @@ use Illuminate\Support\Facades\Validator;
 
 class ChatController extends Controller
 {
+
+    public function getThread(Request $request)
+    {
+        $group = Group::where('link', "=", $request->link)->first();
+        if ($group) {
+            return ["success" => true, "thread" => $group];
+        } else {
+            return ["success" => false];
+        }
+    }
+
     public function searchUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -77,11 +88,6 @@ class ChatController extends Controller
         }
         try {
             $user = Auth::user();
-
-
-
-
-
             $files = $request->file("files");
             $urls = [];
             if ($request->hasFile("files")) {
