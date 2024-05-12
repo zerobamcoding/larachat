@@ -175,6 +175,12 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                 }
             }
             return { ...state }
+        case ChatsType.CHATS_JOIN:
+            if (state.threads) {
+
+                return { loading: false, threads: [action.payload.thread, ...state.threads] }
+            }
+            return { ...state }
         case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
         default:

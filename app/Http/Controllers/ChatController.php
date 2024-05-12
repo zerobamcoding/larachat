@@ -16,11 +16,33 @@ use Illuminate\Support\Facades\Validator;
 
 class ChatController extends Controller
 {
+    public function joinToThread(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "type" => "required|string",
+            "id" => "required|integer",
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false, "errors" => $validator->errors()->getMessages()];
+        }
+
+        $user = Auth::user();
+        if ($request->type === "Group") {
+            Group::find($request->id)->users()->attach($user);
+            $thread = Group::find($request->id);
+        }
+
+        return ["success" => true, "thread" => $thread];
+    }
 
     public function getThread(Request $request)
     {
+        $user = Auth::user();
         $group = Group::where('link', "=", $request->link)->first();
         if ($group) {
+            if (!$group->users->contains($user->id)) {
+                $group['must_join'] = true;
+            }
             return ["success" => true, "thread" => $group];
         } else {
             return ["success" => false];

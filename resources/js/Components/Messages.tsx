@@ -25,7 +25,7 @@ interface PageProps {
 const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines, showGroupInfo, selectThread }) => {
     const ref = useRef<HTMLDivElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
-    const { sendMessage, seenMessage, loadMoreMessage } = useActions()
+    const { sendMessage, seenMessage, loadMoreMessage, joinThreadAction } = useActions()
     const [messageValue, setMessageValue] = useState("")
     const [files, setFiles] = useState<File[]>([])
     const fileRef = useRef<HTMLInputElement>(null)
@@ -227,6 +227,11 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         }
 
     }
+
+    const joinToThreadHandler = (thread: Direct | Group) => {
+        joinThreadAction(thread.type, thread.id)
+    }
+
     return (
         <div className="relative flex flex-col flex-1 bg-white dark:bg-slate-800">
             {thread && (
@@ -377,7 +382,14 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                     </div>
                 )}
             </div>
-            {thread && (
+            {thread && !isAnUser(thread) && thread.must_join ? (
+                <div className='flex items-center self-center w-full max-w-xl bg-green-500 rounded-full m-3 select-none cursor-pointer hover:scale-105 duration-300'
+                    onClick={() => joinToThreadHandler(thread)}>
+                    <div className="relative flex w-full p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
+                        <div className='w-full text-center font-semibold text-lg uppercase'>join</div>
+                    </div>
+                </div>
+            ) : thread && (
                 <>
                     {reply && (
                         <div className='w-full max-w-xl flex flex-row self-center bg-slate-50 p-4 rounded-xl'>

@@ -13,6 +13,7 @@ export interface User {
     is_online: boolean
     created_at: Date
     updated_at: Date
+    must_join?: boolean
 }
 
 export interface AuthPayload {

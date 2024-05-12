@@ -1,5 +1,12 @@
+import { Group } from "./group";
 import { User, ValidationErrors } from "./user"
 
+
+export interface ChatJoinPayload {
+    success: boolean;
+    thread: Direct | Group | User
+    errors?: ValidationErrors
+}
 
 export interface ThreadsResponse {
     success: boolean;
@@ -35,6 +42,7 @@ export interface Direct {
     has_more: boolean
     created_at: Date
     updated_at: Date
+    must_join?: boolean
 }
 export interface Message {
     id: number

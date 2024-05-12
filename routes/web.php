@@ -83,6 +83,7 @@ Route::controller(ChatController::class)->prefix("chat")->name('chat.')->group(f
     Route::post('/loadmore', 'loadmoreMessages')->name("loadmore")->middleware("auth:sanctum");
     Route::post('/remove-message', 'removeMessage')->name("remove.message")->middleware("auth:sanctum");
     Route::post('/get-thread', 'getThread')->name("search.thread")->middleware("auth:sanctum");
+    Route::post('/join', 'joinToThread')->name("join")->middleware("auth:sanctum");
 });
 
 Route::controller(GroupController::class)->prefix("group")->name('group.')->group(function () {

@@ -3,7 +3,7 @@ import { SearchUserActions, ChatsActions, OnlineUsersActions } from "../actions/
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
 import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
-import { Message, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { ChatJoinPayload, Message, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { GetGroupMembersPayload, Group, RemoveMessagePayload } from "../types/group";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
@@ -142,6 +142,24 @@ export const removeMessageAction = (id: number) => async (dispatch: ThunkDispatc
     }
 }
 
+
+export const joinThreadAction = (type: string, id: number) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+        const { data }: { data: ChatJoinPayload } = await apiClient.post(route("chat.join"), { type, id })
+        if (data && !data.success && data.errors) {
+            dispatch({ type: ChatsType.CHATS_ERROR, payload: { errors: data.errors } })
+            return
+        }
+
+        dispatch({ type: ChatsType.CHATS_JOIN, payload: data })
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
 export const getThreads = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
     dispatch({ type: ChatsType.CHATS_LOADING })
 

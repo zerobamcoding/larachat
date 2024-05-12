@@ -1,5 +1,5 @@
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
-import { PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
+import { ChatJoinPayload, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { GetGroupMembersPayload, Group, RemoveMessagePayload } from "../types/group";
 import { ThreadsList, ValidationErrors } from "../types/user";
 
@@ -67,6 +67,13 @@ interface GetGroupMembers {
     type: ChatsType.CHATS_GET_GROUP_MEMBERS,
     payload: GetGroupMembersPayload
 }
+
+interface JoinThread {
+    type: ChatsType.CHATS_JOIN,
+    payload: ChatJoinPayload
+}
+
+
 interface ChatsError {
     type: ChatsType.CHATS_ERROR
     payload: { errors: ValidationErrors }
@@ -80,6 +87,7 @@ export type ChatsActions =
     seenMessageSuccess |
     RemoveMessage |
     AddToGroup |
+    JoinThread |
     GetGroupMembers |
     loadMoreMessagesSuccess |
     ChatsError

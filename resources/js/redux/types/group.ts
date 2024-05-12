@@ -44,4 +44,5 @@ export interface Group {
     pivot: Pivot
     created_at: Date
     updated_at: Date
+    must_join?: boolean
 }
