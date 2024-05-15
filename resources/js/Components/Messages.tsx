@@ -260,7 +260,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
                             <div className="overflow-hidden text-base font-medium leading-tight  whitespace-no-wrap first-letter:uppercase">{contact?.name ?? contact?.username}</div>
                         ) : null}
-                        {contact && onlines.includes(contact.id) && (
+                        {isDirect(thread) && contact && onlines.includes(contact.id) && (
 
                             <div className="overflow-hidden text-sm font-medium leading-tight  whitespace-no-wrap">Online</div>
                         )}

@@ -12,7 +12,7 @@ class Group extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $appends = ['type', 'unreaded_messages', 'members_count'];
+    protected $appends = ['type', 'members_count'];
     protected $hidden = ['link'];
 
     public function getTypeAttribute()
@@ -39,12 +39,5 @@ class Group extends Model
     public function latestMessage(): MorphOne
     {
         return $this->morphOne(Message::class, 'messageable')->latestOfMany();
-    }
-
-
-    public function getUnreadedMessagesAttribute()
-    {
-        $user = Auth::user();
-        return $this->messages()->where("sender", "!=", $user->id)->where("seen", false)->count();
     }
 }

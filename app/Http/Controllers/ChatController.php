@@ -91,7 +91,9 @@ class ChatController extends Controller
             "replied" => $data['reply'] ?? null
         ]);
 
-        event(new SentGroupMessage($message->load["sender"]));
+        $group->touch();
+
+        event(new SentGroupMessage($message->load(["sender"])));
         return $message;
     }
 
@@ -162,8 +164,14 @@ class ChatController extends Controller
 
     public function getThreadMessages(Direct | Group $direct, int $offset = 0, int $take = 20)
     {
-        return $direct
-            ->messages()
+        $messages = $direct
+            ->messages();
+
+        if (isset($direct->type) && $direct->type === "Group" && isset($direct->pivot->added_at)) {
+            $messages = $messages->where('created_at', ">=", $direct->pivot->added_at);
+        }
+        return
+            $messages
             ->with(['replied', "sender"])
             ->latest()
             ->offset($offset)
@@ -173,7 +181,7 @@ class ChatController extends Controller
             ->values();
     }
 
-    public function getFromUnreaded(Direct | Group $direct, int $user_id)
+    public function getFromUnreaded(Direct | Group $direct, int $user_id, int $count = 0)
     {
         $messages = [];
         $unreaded = 0;
@@ -181,13 +189,20 @@ class ChatController extends Controller
         do {
             $lists = $this->getThreadMessages($direct, $page * 20);
             foreach ($lists as $list) {
-                if ($list->sender != $user_id && !$list->seen) {
-                    $unreaded++;
+                if ($direct->type === "Group") {
+                    if ($list->sender != $user_id && !$list->is_seen) {
+                        $unreaded++;
+                    }
+                } else {
+
+                    if ($list->sender != $user_id && !$list->seen) {
+                        $unreaded++;
+                    }
                 }
             }
             array_unshift($messages, ...$lists);
             $page++;
-        } while ($direct->unreaded_messages > $unreaded);
+        } while ($count > $unreaded);
         return ["messages" => $messages, "page" => $page];
     }
 
@@ -233,7 +248,18 @@ class ChatController extends Controller
 
         $threads = [];
         foreach ($merged as $direct) {
-            $response = $this->getFromUnreaded($direct, $user->id);
+            if ($direct->type === "Group") {
+                $unreaded_messages = $direct
+                    ->messages()
+                    ->where('created_at', ">=", $direct->pivot->added_at)
+                    ->where('sender', '!=', $user->id)
+                    ->get()
+                    ->where('is_seen', false)
+                    ->count();
+            } else {
+                $unreaded_messages = $direct->unreaded_messages;
+            }
+            $response = $this->getFromUnreaded($direct, $user->id, $unreaded_messages);
             $direct['messages'] = $response['messages'];
             $direct['page'] = $response['page'];
             $direct["has_more"] = $direct->messages()->count() - count($response['messages']) > 0;

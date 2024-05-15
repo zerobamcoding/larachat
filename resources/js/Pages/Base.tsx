@@ -61,10 +61,11 @@ const Base = () => {
         }
         if (threads && selectedThread) {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
+            //@ts-ignore
             let newData = { ...selectedThread, messages: updateSelectedThred.messages, has_more: updateSelectedThred.has_more, page: updateSelectedThred.page }
             if (isGroup(updateSelectedThred) && updateSelectedThred.members) {
                 //@ts-ignore
-                newData = { ...newData, members: [...updateSelectedThred.members] }
+                newData = { ...newData, members: [...updateSelectedThred.members], must_join: false }
             }
             setSelectedThread(newData)
         }
