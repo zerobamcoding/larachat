@@ -45,13 +45,14 @@ Route::get("/test", function () {
 
     // ]);
     // dd($direct->messages);
-    // $user = User::find(2);
+    $user = User::find(2);
     // $directs = Direct::where("user_one", $user->id)->orWhere("user_two", $user->id)->with(["messages", "userone", "usertwo"])
     //     ->get()
     //     ->makeHidden(['user_one', "user_two"])
     //     ->toArray();
     // dd($directs);
-    // $group = Group::find(4);
+    $group = Group::find(4);
+    dd($group->messages()->where('created_at', ">=", '2024-05-04 12:19:36')->get());
     // $user = User::find(1);
     // $group->users()->attach($user);
     // dd(substr(base_convert(sha1(uniqid(mt_rand())), 8, 16), 0, 6));

@@ -32,6 +32,11 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Group::class, 'group_user')->withPivot(['is_admin', 'added_at']);
     }
+
+    public function seens()
+    {
+        return $this->belongsToMany(Message::class, 'user_message');
+    }
     /**
      * The attributes that should be cast.
      *

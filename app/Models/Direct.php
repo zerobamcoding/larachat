@@ -12,7 +12,7 @@ class Direct extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $appends = ['type', 'unreaded_messages'];
+    protected $appends = ['type'];
 
     public function getTypeAttribute()
     {
@@ -37,11 +37,5 @@ class Direct extends Model
     public function usertwo()
     {
         return $this->belongsTo(User::class, "user_two", "id");
-    }
-
-    public function getUnreadedMessagesAttribute()
-    {
-        $user = Auth::user();
-        return $this->messages()->where("sender", "!=", $user->id)->where("seen", false)->count();
     }
 }

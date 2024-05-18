@@ -34,12 +34,12 @@ const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected 
                     ) : user && user.avatar ? (
 
                         <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
-                    ) : (<p>{user?.username.slice(0, 1).toUpperCase()}</p>)
+                    ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
                 ) : (
                     user.avatar ? (
 
                         <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
-                    ) : (<p>{user?.username.slice(0, 1).toUpperCase()}</p>)
+                    ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
                 )
             ) : null}
 

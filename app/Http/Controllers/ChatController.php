@@ -189,15 +189,9 @@ class ChatController extends Controller
         do {
             $lists = $this->getThreadMessages($direct, $page * 20);
             foreach ($lists as $list) {
-                if ($direct->type === "Group") {
-                    if ($list->sender != $user_id && !$list->is_seen) {
-                        $unreaded++;
-                    }
-                } else {
 
-                    if ($list->sender != $user_id && !$list->seen) {
-                        $unreaded++;
-                    }
+                if ($list->sender != $user_id && !$list->is_seen) {
+                    $unreaded++;
                 }
             }
             array_unshift($messages, ...$lists);
@@ -224,7 +218,11 @@ class ChatController extends Controller
             } else {
                 $group = Group::find($request->id);
                 $messages = $this->getThreadMessages($group, $request->page * 20);
-                $has_more = $group->messages()->where("id", "<", $messages[0]->id)->count();
+                $has_more = $group
+                    ->messages()
+                    ->where("id", "<", $messages[0]->id)
+                    ->where('created_at', ">=", $group->pivot->added_at)
+                    ->count();
             }
 
             return ["success" => true, "id" => $request->id, "model" => $request->model, "messages" => $messages, "page" => $request->page, "has_more" => $has_more > 0];
@@ -248,21 +246,22 @@ class ChatController extends Controller
 
         $threads = [];
         foreach ($merged as $direct) {
+
+            $messages = $direct->messages();
             if ($direct->type === "Group") {
-                $unreaded_messages = $direct
-                    ->messages()
-                    ->where('created_at', ">=", $direct->pivot->added_at)
-                    ->where('sender', '!=', $user->id)
-                    ->get()
-                    ->where('is_seen', false)
-                    ->count();
-            } else {
-                $unreaded_messages = $direct->unreaded_messages;
+                $messages = $messages->where('created_at', ">=", $direct->pivot->added_at);
             }
+
+            $unreaded_messages = $messages->where('sender', '!=', $user->id)
+                ->get()
+                ->where('is_seen', false)
+                ->count();
+
             $response = $this->getFromUnreaded($direct, $user->id, $unreaded_messages);
             $direct['messages'] = $response['messages'];
             $direct['page'] = $response['page'];
-            $direct["has_more"] = $direct->messages()->count() - count($response['messages']) > 0;
+            $direct["has_more"] = $messages->count() - count($response['messages']) > 0;
+            $direct["unreaded_messages"] = $unreaded_messages;
             $threads[] = $direct;
         }
         // ->makeHidden(['user_one', "user_two"])
@@ -300,9 +299,13 @@ class ChatController extends Controller
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
         }
         try {
+            /**
+             * @var User $user
+             */
+            $user = Auth::user();
             $message = Message::find($request->id);
-            $message->seen = true;
-            $message->save();
+
+            $user->seens()->attach($message);
             return ["success" => true, "message" => $message->refresh()->load(["replied"])];
         } catch (Exception $e) {
             return ["success" => false, "errors" => $e];

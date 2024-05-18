@@ -51,7 +51,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
             const pinned: Message[] = []
             const unseen: Message[] = []
             thread.messages?.map(m => {
-                m.sender.id !== me?.id && !m.seen ? unseen.push(m) : null
+                m.sender.id !== me?.id && !m.is_seen ? unseen.push(m) : null
                 m.pinned ? pinned.push(m) : null
             })
             setShownPinnedMessage(pinned[pinned.length - 1])
@@ -353,7 +353,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                         </div>
                                                     </div>
                                                 )}
-                                                {message.pinned || (message.sender.id !== me?.id && !message.seen) ? (
+                                                {message.pinned || (message.sender.id !== me?.id && !message.is_seen) ? (
                                                     <div ref={refsById[message.id]} />
                                                 ) : null}
                                                 {elements[index + 1] && (
