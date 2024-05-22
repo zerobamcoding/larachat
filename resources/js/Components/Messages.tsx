@@ -10,6 +10,7 @@ import Avatar from './Avatar'
 import { isAnUser, isDirect, isGroup } from '@/utils/CheckType'
 import { Group } from '@/redux/types/group'
 import apiClient from '@/libs/apiClient'
+import VoiceRecorder from './VoiceRecorder'
 interface PageProps {
     thread: User | Direct | Group | null
     showCTXMenu: (v: boolean) => void
@@ -405,6 +406,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                         </div>
                     )}
                     <div className='flex items-center self-center w-full max-w-xl'>
+                        <VoiceRecorder addToFile={setFiles} />
                         <div className="relative flex w-full p-4 overflow-hidden text-gray-600 focus-within:text-gray-400">
                             <div className="w-full">
 
