@@ -27,12 +27,15 @@
     "dependencies": {
         "@heroicons/react": "^2.0.18",
         "@tabler/icons-react": "^3.0.2",
+        "@types/wavesurfer.js": "^6.0.12",
+        "@wavesurfer/react": "^1.0.6",
         "laravel-echo": "^1.16.0",
         "pusher-js": "^8.4.0-rc2",
         "react-redux": "^9.1.0",
         "react-voice-visualizer": "^1.8.1",
         "redux": "^5.0.1",
         "redux-thunk": "^3.1.0",
-        "rodal": "^2.1.0"
+        "rodal": "^2.1.0",
+        "wavesurfer.js": "^7.7.15"
     }
 }

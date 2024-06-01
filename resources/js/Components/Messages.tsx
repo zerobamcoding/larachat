@@ -11,6 +11,7 @@ import { isAnUser, isDirect, isGroup } from '@/utils/CheckType'
 import { Group } from '@/redux/types/group'
 import apiClient from '@/libs/apiClient'
 import VoiceRecorder from './VoiceRecorder'
+import AudioVisualize from './AudioVisualize'
 interface PageProps {
     thread: User | Direct | Group | null
     showCTXMenu: (v: boolean) => void
@@ -336,6 +337,26 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                                         {message.messageable_type.includes("Group") ? message.sender.id !== me?.id && (elements[index + 1] && elements[index].sender.id !== elements[index + 1].sender.id) || (index === elements.length - 1 && message.sender.id !== me?.id) ? (
                                                             <Avatar h={12} w={12} user={message.sender} />
                                                         ) : <div className='w-12 h-12'></div> : null}
+                                                    </div>
+                                                ) : message.files?.split('.').pop() === 'webm' ? (
+                                                    <div className={`flex flex-row w-fit space-x-3 items-center ${message.sender.id === me?.id ? 'self-start' : 'self-end'}`}>
+                                                        {message.messageable_type.includes("Group") ? message.sender.id === me?.id && (elements[index + 1] && elements[index].sender.id !== elements[index + 1].sender.id) || (index === elements.length - 1 && message.sender.id === me?.id) ? (
+                                                            <Avatar h={12} w={12} user={message.sender} />
+
+                                                        ) : <div className='w-12 h-12'></div> : null}
+                                                        <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col rounded-t-lg  ${message.sender.id === me?.id ? 'bg-white rounded-r-lg' : 'bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                            {message.replied && (
+                                                                <div className='bg-slate-100 p-2 mx-2 mt-1 border-l-2 border-sky-400 rounded-md cursor-pointer'>
+                                                                    <p className='text-xs font-extralight'>{message.replied.message}</p>
+                                                                </div>
+                                                            )}
+                                                            <div className='flex flex-row'>
+                                                                <AudioVisualize source={`storage/${message.files}`} />
+                                                                <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                                    <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ) : (
                                                     <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col overflow-hidden rounded-t-lg  ${message.sender.id === me?.id ? 'self-start bg-white rounded-r-lg' : 'self-end bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
