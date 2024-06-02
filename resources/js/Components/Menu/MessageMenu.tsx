@@ -1,17 +1,18 @@
 import React from 'react'
 import { IconCornerUpRight, IconClipboardCopy, IconX, IconPin, IconEdit, IconPinnedOff } from "@tabler/icons-react"
 import { Direct, Message } from '@/redux/types/chat'
-import { isDirect, isGroup } from '@/utils/CheckType'
+import { isChannel, isDirect, isGroup } from '@/utils/CheckType'
 import { Group } from '@/redux/types/group'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
+import { Channel } from '@/redux/types/channel'
 
 interface PageProps {
     close: () => void
     message: Message
     reply: (v: Message) => void
     pin: (v: Message, p: boolean) => void
-    thread: Group | User | Direct
+    thread: Group | User | Direct | Channel
     user: User
 }
 
@@ -60,7 +61,7 @@ const MessageMenu: React.FC<PageProps> = ({ message, reply, pin, thread, close, 
                     <p>Pin message</p>
                 </li>
             )}
-            {(isGroup(thread) && (thread.creator === thread.pivot.user_id || thread.pivot.is_admin) || (isDirect(thread) && message.sender.id === user.id)) ? (
+            {message.sender.id === user.id || ((isGroup(thread) || isChannel(thread)) && (thread.creator === thread.pivot.user_id || thread.pivot.is_admin)) ? (
 
                 <li className='w-full hover:bg-slate-600 p-2 px-3 flex items-center space-x-5 cursor-default' onClick={removeMessageHandler}>
                     <IconX className='h-4' />

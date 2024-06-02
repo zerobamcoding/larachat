@@ -12,8 +12,9 @@ import { Group } from '@/redux/types/group'
 import apiClient from '@/libs/apiClient'
 import VoiceRecorder from './VoiceRecorder'
 import AudioVisualize from './AudioVisualize'
+import { Channel } from '@/redux/types/channel'
 interface PageProps {
-    thread: User | Direct | Group | null
+    thread: User | Direct | Group | null | Channel
     showCTXMenu: (v: boolean) => void
     changeMenuPosition: (v: { x: number, y: number }) => void
     selectedMessageCTX: (v: Message) => void
@@ -22,7 +23,7 @@ interface PageProps {
     showInfo: () => void
     onlines: number[]
     showGroupInfo: () => void
-    selectThread: React.Dispatch<React.SetStateAction<User | Direct | Group | null>>
+    selectThread: React.Dispatch<React.SetStateAction<User | Direct | Group | Channel | null>>
 }
 const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition, selectedMessageCTX, reply, removeReply, showInfo, onlines, showGroupInfo, selectThread }) => {
     const ref = useRef<HTMLDivElement>(null)
@@ -230,7 +231,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
     }
 
-    const joinToThreadHandler = (thread: Direct | Group) => {
+    const joinToThreadHandler = (thread: Direct | Group | Channel) => {
         joinThreadAction(thread.type, thread.id)
     }
 

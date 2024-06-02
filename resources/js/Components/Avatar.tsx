@@ -7,11 +7,12 @@ interface AvatarProps {
     h: number;
     w: number;
     editable?: boolean
-    user: User
+    user?: User
+    source?: string
     selected?: boolean
     showBookmark?: boolean
 }
-const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false, showBookmark = false }) => {
+const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false, showBookmark = false, source }) => {
     const imageRef = useRef<HTMLInputElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
     const { changeAvatar } = useActions();
@@ -41,6 +42,8 @@ const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected 
                         <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
                     ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
                 )
+            ) : source ? (
+                <img className="object-cover w-full h-full rounded-full" src={`storage/${source}`} alt={`avatar`} />
             ) : null}
 
             {editable && (

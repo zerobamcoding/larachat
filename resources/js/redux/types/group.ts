@@ -16,7 +16,7 @@ export interface GetGroupMembersPayload {
     id?: number
 }
 
-interface Pivot {
+export interface Pivot {
     user_id: number
     group_id: number
     is_admin: boolean
@@ -27,7 +27,7 @@ export interface MakeNewGroupPayload {
     errors?: ValidationErrors
 }
 
-type UserWithPivot = User & { pivot: Pivot }
+export type UserWithPivot = User & { pivot: Pivot }
 
 export interface Group {
     type: "Group"

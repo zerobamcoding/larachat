@@ -5,10 +5,11 @@ import { Direct } from '@/redux/types/chat'
 import Avatar from './Avatar'
 import { useTypedSelector } from '@/hooks/use-typed-selector'
 import { Group } from '@/redux/types/group'
-import { isDirect, isGroup } from '@/utils/CheckType'
+import { isChannel, isDirect, isGroup } from '@/utils/CheckType'
 import apiClient from '@/libs/apiClient'
+import { Channel } from '@/redux/types/channel'
 interface PageProps {
-    thread: User | Direct | null | Group
+    thread: User | Direct | null | Group | Channel
     close: () => void
     onlines: number[]
 }
@@ -61,7 +62,7 @@ const ThreadInfo: React.FC<PageProps> = ({ thread, close, onlines }) => {
                         <p className="text-lg font-semibold text-center first-letter:uppercase">{userObject?.name ?? userObject?.username}</p>
                         <p className="text-sm font-medium text-center text-blue-500">{userObject && onlines.includes(userObject.id) ? "Online" : "Offline"}</p>
                     </>
-                ) : isGroup(thread) ? (
+                ) : isGroup(thread) || isChannel(thread) ? (
                     <p className="text-lg font-semibold text-center first-letter:uppercase">{thread.name}</p>
                 ) : null}
             </div>

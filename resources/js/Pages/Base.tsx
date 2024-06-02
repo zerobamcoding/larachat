@@ -16,6 +16,7 @@ import { isDirect, isGroup } from '@/utils/CheckType'
 import GroupInfo from '@/Components/Modals/GroupInfo'
 import MessageMenu from '@/Components/Menu/MessageMenu'
 import GroupUserMenu from '@/Components/Menu/GroupUserMenu'
+import { Channel } from '@/redux/types/channel'
 
 interface TypingThreadTypes {
     thread: number
@@ -28,7 +29,7 @@ const Base = () => {
     const { threads } = useTypedSelector(state => state.threads)
     const { users: onlines } = useTypedSelector(state => state.onlines)
 
-    const [selectedThread, setSelectedThread] = useState<User | Direct | Group | null>(null)
+    const [selectedThread, setSelectedThread] = useState<User | Direct | Group | Channel | null>(null)
     const [isShowCTXMenu, setIsShowCTXMenu] = useState(false)
     const [isShowGroupUserCTXMenu, setIsShowGroupUserCTXMenu] = useState(false)
     const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })

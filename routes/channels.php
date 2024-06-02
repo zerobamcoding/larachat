@@ -27,3 +27,8 @@ Broadcast::channel('user.{id}', function ($user, $id) {
 Broadcast::channel('group.{id}', function ($user, $id) {
     return Group::find($id)->users->contains($user->id);
 });
+
+
+Broadcast::channel('channel.{id}', function ($user, $id) {
+    return Group::find($id)->users->contains($user->id);
+});

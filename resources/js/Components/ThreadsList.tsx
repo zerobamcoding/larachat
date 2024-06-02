@@ -14,11 +14,13 @@ import { User } from '@/redux/types/user';
 import { Direct } from '@/redux/types/chat';
 import Avatar from './Avatar';
 import { Group } from '@/redux/types/group';
-import { isDirect } from '@/utils/CheckType';
+import { isDirect, isGroup, isChannel } from '@/utils/CheckType';
+import { Channel } from '@/redux/types/channel';
+import { isAnUser } from '@/utils/CheckType';
 interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
-    selectThread: React.Dispatch<React.SetStateAction<Direct | User | Group | null>>
+    selectThread: React.Dispatch<React.SetStateAction<Direct | User | Group | Channel | null>>
     typingThreads: number[]
     onlines: number[]
     createGroup: () => void
@@ -197,12 +199,17 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                 <div className="flex justify-between w-full focus:outline-none">
                                     <div className="flex justify-between w-full">
                                         <div className="relative flex items-center justify-center w-12 h-12 ml-2 mr-3 text-xl font-semibold text-white bg-blue-500 rounded-full flex-no-shrink">
-                                            {isDirect(th) ? user && th.userone.id === user.id ?
-                                                <Avatar h={12} w={12} user={th.usertwo} showBookmark />
-                                                :
-                                                <Avatar h={12} w={12} user={th.userone} showBookmark />
+                                            {isDirect(th) ?
+                                                user && th.userone.id === user.id ?
+                                                    <Avatar h={12} w={12} user={th.usertwo} showBookmark />
+                                                    :
+                                                    <Avatar h={12} w={12} user={th.userone} showBookmark />
+                                                : isGroup(th) ? (
+                                                    <p>{th.name.slice(0, 1).toUpperCase()}</p>
+                                                ) : isChannel(th) ? (
+                                                    <Avatar h={12} w={12} source={th.avatar} />
+                                                ) : null}
 
-                                                : <p>{th.name.slice(0, 1).toUpperCase()}</p>}
                                             {isDirect(th) ? user && th.userone.id === user.id ?
                                                 onlines.includes(th.usertwo.id) ? (
                                                     <div className="absolute bottom-0 right-0 flex items-center justify-center bg-white rounded-full" style={{ width: "0.8rem", height: "0.8rem" }}>
@@ -230,7 +237,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                                     : <h2 className="text-sm font-semibold ">{th.name}</h2>}
                                                 <div className="flex">
                                                     {th.messages && th.messages.length && th.messages[th.messages.length - 1].sender.id === user?.id ? (
-                                                        th.messages[th.messages.length - 1].seen ? (
+                                                        th.messages[th.messages.length - 1].is_seen ? (
                                                             <IconChecks className='h-5' color='green' stroke={3} />
                                                         ) : (
                                                             <IconCheck className='h-5' color='gray' stroke={3} />
@@ -249,7 +256,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                                 ) : (
                                                     <span>{th.messages && th.messages.length ? th.messages[th.messages.length - 1].message : ""}</span>
                                                 )}
-                                                {th.unreaded_messages > 0 ? (
+                                                {!isAnUser(th) && th.unreaded_messages > 0 ? (
 
                                                     <span className="flex items-center justify-center w-5 h-5 text-xs text-right text-white bg-green-500 rounded-full">{th.unreaded_messages}</span>
                                                 ) : null}

@@ -1,3 +1,5 @@
+import { Message } from "./chat"
+
 export interface ValidationErrors {
     [key: string]: string[]
 }
@@ -11,6 +13,7 @@ export interface User {
     mobile: number
     username: string
     is_online: boolean
+    messages?: Message[]
     created_at: Date
     updated_at: Date
     must_join?: boolean
