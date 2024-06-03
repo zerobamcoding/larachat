@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SentChannelMessage;
 use App\Events\SentDirectProcessed;
 use App\Events\SentGroupMessage;
 use App\Models\Direct;
 use App\Models\Group;
+use App\Models\Channel;
 use App\Models\Message;
 use App\Models\User;
 use Exception;
@@ -97,6 +99,23 @@ class ChatController extends Controller
         return $message;
     }
 
+    public function sendChannelMessage(User $user, array $data, array $uploaded)
+    {
+        $channel = Channel::find($data['to']);
+        $message = $channel->messages()->create([
+            "message" => $data['message'],
+            "sender" => $user->id,
+            "type" => $data['type'] ?? "text",
+            "files" => count($uploaded) ? implode(",", $uploaded) : null,
+            "replied" => $data['reply'] ?? null
+        ]);
+
+        $channel->touch();
+
+        event(new SentChannelMessage($message->load(["sender"])));
+        return $message;
+    }
+
     public function sendMessage(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -105,7 +124,7 @@ class ChatController extends Controller
             "replied" => "sometimes|exists:messages,id",
             "files" => "sometimes",
             "reply" => "sometimes",
-            "model" => "required|in:direct,group"
+            "model" => "required|in:direct,group,channel"
         ]);
         if ($validator->fails()) {
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
@@ -124,8 +143,10 @@ class ChatController extends Controller
 
             if ($request->model === 'direct') {
                 $message = $this->sendDirectMessage($user, $request->all(), $urls);
-            } else {
+            } else if ($request->model === 'group') {
                 $message = $this->sendGroupMessage($user, $request->all(), $urls);
+            } else {
+                $message = $this->sendChannelMessage($user, $request->all(), $urls);
             }
 
 
@@ -162,7 +183,7 @@ class ChatController extends Controller
         return $conversation;
     }
 
-    public function getThreadMessages(Direct | Group $direct, int $offset = 0, int $take = 20)
+    public function getThreadMessages(Direct | Group | Channel $direct, int $offset = 0, int $take = 20)
     {
         $messages = $direct
             ->messages();
@@ -181,7 +202,7 @@ class ChatController extends Controller
             ->values();
     }
 
-    public function getFromUnreaded(Direct | Group $direct, int $user_id, int $count = 0)
+    public function getFromUnreaded(Direct | Group | Channel $direct, int $user_id, int $count = 0)
     {
         $messages = [];
         $unreaded = 0;
@@ -204,7 +225,7 @@ class ChatController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "id" => "required|integer",
-            "model" => "required|in:Direct,Group",
+            "model" => "required|in:Direct,Group,Channel",
             "page" => "required|integer"
         ]);
         if ($validator->fails()) {
@@ -215,7 +236,7 @@ class ChatController extends Controller
                 $direct = Direct::find($request->id);
                 $messages = $this->getThreadMessages($direct, $request->page * 20);
                 $has_more = $direct->messages()->where("id", "<", $messages[0]->id)->count();
-            } else {
+            } else if ($request->model === "Group") {
                 $group = Group::find($request->id);
                 $messages = $this->getThreadMessages($group, $request->page * 20);
                 $has_more = $group
@@ -223,6 +244,10 @@ class ChatController extends Controller
                     ->where("id", "<", $messages[0]->id)
                     ->where('created_at', ">=", $group->pivot->added_at)
                     ->count();
+            } else {
+                $direct = Channel::find($request->id);
+                $messages = $this->getThreadMessages($direct, $request->page * 20);
+                $has_more = $direct->messages()->where("id", "<", $messages[0]->id)->count();
             }
 
             return ["success" => true, "id" => $request->id, "model" => $request->model, "messages" => $messages, "page" => $request->page, "has_more" => $has_more > 0];
@@ -241,8 +266,9 @@ class ChatController extends Controller
             ->get();
 
         $groups = $user->groups()->get();
-
-        $merged = $directs->merge($groups)->sortBy([fn ($a, $b) => $a['updated_at'] < $b['updated_at']]);
+        $channels = $user->channels()->get();
+        $groups_channels = $groups->merge($channels);
+        $merged = $directs->merge($groups_channels)->sortBy([fn ($a, $b) => $a['updated_at'] < $b['updated_at']]);
 
         $threads = [];
         foreach ($merged as $direct) {

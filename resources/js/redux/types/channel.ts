@@ -1,5 +1,14 @@
 import { Message } from "./chat"
 import { Pivot, UserWithPivot } from "./group"
+import { ValidationErrors } from "./user"
+
+
+export interface MakeNewChannelPayload {
+    success: boolean
+    channel?: Channel
+    errors?: ValidationErrors
+}
+
 
 export interface Channel {
     type: "Channel"

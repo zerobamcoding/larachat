@@ -1,5 +1,6 @@
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
 import { SearchUserActions, ChatsActions, OnlineUsersActions } from "../actions/chat";
+import { Channel } from "../types/channel";
 import { Direct } from "../types/chat";
 import { Group } from "../types/group";
 import { User, ValidationErrors } from "../types/user";
@@ -61,7 +62,7 @@ export const onlinesUsersReducer = (state: OnlineUsersState = onlineUsersInit, a
 }
 interface ChatsState {
     loading: boolean;
-    threads: (Direct | Group)[] | null
+    threads: (Direct | Group | Channel)[] | null
     errors?: ValidationErrors
 }
 

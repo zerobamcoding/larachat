@@ -24,8 +24,9 @@ interface PageProps {
     typingThreads: number[]
     onlines: number[]
     createGroup: () => void
+    createChannel: () => void
 }
-const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typingThreads, onlines, createGroup }) => {
+const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typingThreads, onlines, createGroup, createChannel }) => {
     const { searchUser } = useActions();
     const { user } = useTypedSelector(state => state.me)
     const { users: searchedUsers } = useTypedSelector(state => state.search)
@@ -81,7 +82,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                             <UsersIcon className='h-5' />
                             <span>New Group</span>
                         </li>
-                        <li className='flex flex-row space-x-5 p-5 cursor-pointer hover:bg-slate-400/20'>
+                        <li className='flex flex-row space-x-5 p-5 cursor-pointer hover:bg-slate-400/20' onClick={() => createChannel()}>
                             <MegaphoneIcon className='h-5' />
                             <span>New Channel</span>
                         </li>

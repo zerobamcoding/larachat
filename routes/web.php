@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\Authenticate;
+use App\Http\Controllers\ChannelController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\GroupController;
 use App\Http\Controllers\UserController;
@@ -92,6 +93,14 @@ Route::controller(GroupController::class)->prefix("group")->name('group.')->grou
     Route::post('/new_group', 'createNewGroup')->name("new")->middleware("auth:sanctum");
     Route::post('/admin', 'changeAdmin')->name("change.admin")->middleware("auth:sanctum");
     Route::post('/remove-user', 'removeGroupUser')->name("remove.user")->middleware("auth:sanctum");
+    Route::post('/link', 'getLink')->name("link")->middleware("auth:sanctum");
+});
+
+Route::controller(ChannelController::class)->prefix("channel")->name('channel.')->group(function () {
+    Route::get('/members/{id}', 'getChannelMembers')->name("members")->middleware("auth:sanctum");
+    Route::post('/new_channel', 'createNewChannel')->name("new")->middleware("auth:sanctum");
+    Route::post('/admin', 'changeAdmin')->name("change.admin")->middleware("auth:sanctum");
+    Route::post('/remove-user', 'removeChannelUser')->name("remove.user")->middleware("auth:sanctum");
     Route::post('/link', 'getLink')->name("link")->middleware("auth:sanctum");
 });
 

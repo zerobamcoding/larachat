@@ -17,6 +17,7 @@ import GroupInfo from '@/Components/Modals/GroupInfo'
 import MessageMenu from '@/Components/Menu/MessageMenu'
 import GroupUserMenu from '@/Components/Menu/GroupUserMenu'
 import { Channel } from '@/redux/types/channel'
+import CreateChannel from '@/Components/Modals/CreateChannel'
 
 interface TypingThreadTypes {
     thread: number
@@ -38,6 +39,7 @@ const Base = () => {
     const [reply, setReply] = useState<Message | null>(null)
     const [isShowUserInfo, setIsShowUserInfo] = useState(false)
     const [isShowCreateGropModal, setIsShowCreateGropModal] = useState(false)
+    const [isShowCreateChannelModal, setIsShowCreateChannelModal] = useState(false)
     const [isShowGroupInfoModal, setIsShowGroupInfoModal] = useState(false)
     const [contacts, setContacts] = useState<User[]>([])
 
@@ -135,6 +137,7 @@ const Base = () => {
                 selectThread={setSelectedThread}
                 typingThreads={typingThreads}
                 createGroup={() => setIsShowCreateGropModal(true)}
+                createChannel={() => setIsShowCreateChannelModal(true)}
             />
 
             <Messages
@@ -187,6 +190,9 @@ const Base = () => {
             )}
             <Modal show={isShowCreateGropModal} close={() => setIsShowCreateGropModal(false)} >
                 <GroupName close={() => setIsShowCreateGropModal(false)} contacts={contacts} />
+            </Modal>
+            <Modal show={isShowCreateChannelModal} close={() => setIsShowCreateChannelModal(false)} >
+                <CreateChannel close={() => setIsShowCreateChannelModal(false)} contacts={contacts} />
             </Modal>
             <Modal show={isShowGroupInfoModal} close={() => setIsShowGroupInfoModal(false)} >
                 {selectedThread && isGroup(selectedThread) && user ? (
