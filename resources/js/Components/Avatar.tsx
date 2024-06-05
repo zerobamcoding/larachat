@@ -1,50 +1,57 @@
 import React, { ChangeEvent, useRef } from 'react'
 import { IconBookmark, IconCamera } from "@tabler/icons-react"
-import { useActions } from '@/hooks/useActions';
 import { User } from '@/redux/types/user';
 import { useTypedSelector } from '@/hooks/use-typed-selector';
+import { Channel } from '@/redux/types/channel';
+import { isAnUser, isChannel } from '@/utils/CheckType';
 interface AvatarProps {
     h: number;
     w: number;
     editable?: boolean
-    user?: User
+    user?: User | Channel
     source?: string
     selected?: boolean
     showBookmark?: boolean
+    changeFile?: (files: File[]) => void
 }
-const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false, showBookmark = false, source }) => {
+const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected = false, showBookmark = false, source, changeFile = () => { } }) => {
     const imageRef = useRef<HTMLInputElement>(null)
     const { user: me } = useTypedSelector(state => state.me)
-    const { changeAvatar } = useActions();
+
+
     const changeAvatarHandler = (e: ChangeEvent<HTMLInputElement>) => {
         const { files } = e.target
         if (files && files[0]) {
-
-            const formData = new FormData();
-            formData.append("file", files[0])
-            changeAvatar(formData)
+            changeFile([...files])
         }
     }
 
     return (
         <div className={`group relative overflow-hidden flex items-center justify-center w-${w} h-${h} text-xl font-semibold text-white bg-blue-500 rounded-full ${selected ? "ring-[3px] ring-blue-500 ring-offset-4" : ""}`}>
-            {user ? (
-                showBookmark ? (
-                    user.id === me?.id ? (
-                        <IconBookmark size={24} stroke={3} />
-                    ) : user && user.avatar ? (
+            {user ?
+                isAnUser(user) ? (
+                    showBookmark ? (
+                        user.id === me?.id ? (
+                            <IconBookmark size={24} stroke={3} />
+                        ) : user && user.avatar ? (
 
-                        <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
-                    ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
-                ) : (
+                            <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
+                        ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
+                    ) : (
+                        user.avatar ? (
+
+                            <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
+                        ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
+                    )
+                ) : isChannel(user) ? (
                     user.avatar ? (
+                        <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.name} avatar`} />
 
-                        <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
-                    ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
-                )
-            ) : source ? (
-                <img className="object-cover w-full h-full rounded-full" src={`storage/${source}`} alt={`avatar`} />
-            ) : null}
+                    ) : <p>{user?.name?.slice(0, 1).toUpperCase()}</p>
+                ) : null : source ? (
+                    <img className="object-cover w-full h-full rounded-full" src={`${source}`} alt={`avatar`} />
+                ) : null}
+
 
             {editable && (
                 <>

@@ -26,6 +26,7 @@ class ChannelController extends Controller
     {
         $validator = Validator::make($request->all(), [
             "name" => "required|string",
+            "description" => "sometimes|string",
             "users" => "sometimes|array",
             "users.*" => "integer"
         ]);
@@ -35,17 +36,26 @@ class ChannelController extends Controller
         try {
             $user = Auth::user();
             $users = [$user->id];
+            $avatar = $request->file("avatar");
+            if ($request->hasFile("avatar")) {
+                $name = $avatar->hashName();
+                $uploaded = $avatar->storePubliclyAs("avatars", $name, "public");
+            }
+
+
             $channel = new Channel();
             $channel->name = $request->name;
+            $channel->description = $request->description;
+            $channel->avatar = $uploaded ?? null;
             $channel->creator = $user->id;
             $channel->save();
 
-            array_push($users, ...$request->users);
-            // if (isset($request->users) && count($request->users)) {
+            if (isset($request->users) && count($request->users))
+                array_push($users, ...$request->users);
 
             $channel->users()->attach($users, ["added_by" => $user->id]);
             // }
-            foreach ($request->users as $u) {
+            foreach ($users as $u) {
                 event(new AddedToChannel($u, $channel));
             }
             return ["success" => true, "channel" => $channel];

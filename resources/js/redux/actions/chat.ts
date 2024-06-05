@@ -1,4 +1,5 @@
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
+import { Channel } from "../types/channel";
 import { ChatJoinPayload, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { GetGroupMembersPayload, Group, RemoveMessagePayload } from "../types/group";
 import { ThreadsList, ValidationErrors } from "../types/user";
@@ -57,6 +58,11 @@ interface AddToGroup {
     payload: Group
 }
 
+interface AddToChannel {
+    type: ChatsType.CHATS_ADD_TO_CHANNEL,
+    payload: Channel
+}
+
 interface RemoveMessage {
     type: ChatsType.CHATS_REMOVE_MESSAGE,
     payload: RemoveMessagePayload
@@ -87,6 +93,7 @@ export type ChatsActions =
     seenMessageSuccess |
     RemoveMessage |
     AddToGroup |
+    AddToChannel |
     JoinThread |
     GetGroupMembers |
     loadMoreMessagesSuccess |

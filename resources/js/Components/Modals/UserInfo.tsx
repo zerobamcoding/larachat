@@ -3,12 +3,14 @@ import React, { useEffect, useState } from 'react'
 import { useTypedSelector } from '@/hooks/use-typed-selector';
 import Avatar from '../Avatar';
 import { useActions } from '@/hooks/useActions';
+
 interface PageProps {
     close: (v: boolean) => void
     level: (v: "info" | "setting") => void
 }
 
 const UserInfo: React.FC<PageProps> = ({ close, level }) => {
+    const { changeAvatar } = useActions();
     const { updateUser } = useActions();
     const [editMode, setEditMode] = useState<"name" | "mobile" | "">("")
     const { user, errors } = useTypedSelector(state => state.me)
@@ -31,6 +33,14 @@ const UserInfo: React.FC<PageProps> = ({ close, level }) => {
 
     }, [name, mobile, bio])
 
+    const changeAvatarHandler = (files: File[]) => {
+        if (files && files[0]) {
+            const formData = new FormData();
+            formData.append("file", files[0])
+            changeAvatar(formData)
+        }
+    }
+
     return (
         <div className='flex flex-col'>
             <div className='flex flex-row justify-between mb-6 p-5 pb-0'>
@@ -43,7 +53,7 @@ const UserInfo: React.FC<PageProps> = ({ close, level }) => {
 
             <div className='flex flex-col items-center justify-center'>
                 {user && (
-                    <Avatar h={16} w={16} editable user={user} />
+                    <Avatar h={16} w={16} editable user={user} changeFile={changeAvatarHandler} />
                 )}
                 <h2 className='font-black text-xl my-3'>{user && user.name ? user.name : user ? `${user.username}` : "Not set"}</h2>
             </div>

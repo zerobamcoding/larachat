@@ -2,6 +2,7 @@ import { EllipsisVerticalIcon, UserCircleIcon, XMarkIcon } from '@heroicons/reac
 import React from 'react'
 import { useTypedSelector } from '@/hooks/use-typed-selector';
 import Avatar from '../Avatar';
+import { useActions } from '@/hooks/useActions';
 
 
 interface PageProps {
@@ -9,8 +10,15 @@ interface PageProps {
     level: (v: "info" | "setting") => void
 }
 const Setting: React.FC<PageProps> = ({ close, level }) => {
+    const { changeAvatar } = useActions();
     const { user } = useTypedSelector(state => state.me)
-
+    const changeAvatarHandler = (files: File[]) => {
+        if (files && files[0]) {
+            const formData = new FormData();
+            formData.append("file", files[0])
+            changeAvatar(formData)
+        }
+    }
     return (
         <div className='flex flex-col'>
             <div className='flex flex-row justify-between mb-6 p-5 pb-0'>
@@ -22,7 +30,7 @@ const Setting: React.FC<PageProps> = ({ close, level }) => {
             </div>
             <div className='flex space-x-4 items-center p-5 pt-0'>
                 {user && (
-                    <Avatar h={16} w={16} editable user={user} />
+                    <Avatar h={16} w={16} editable user={user} changeFile={changeAvatarHandler} />
                 )}
                 <ul role='list'>
                     <li className='text-lg font-extrabold'>

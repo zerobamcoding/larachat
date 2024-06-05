@@ -16,6 +16,7 @@ export interface Channel {
     name: string
     description?: string
     creator: number
+    avatar?: string
     messages?: Message[]
     unreaded_messages: number
     has_more: boolean

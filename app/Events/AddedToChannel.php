@@ -11,7 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class AddedToChannel
+class AddedToChannel implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -51,6 +51,6 @@ class AddedToChannel
      */
     public function broadcastWith(): array
     {
-        return ['group' => $this->channel];
+        return ['channel' => $this->channel];
     }
 }

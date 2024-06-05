@@ -24,7 +24,7 @@ interface TypingThreadTypes {
     typing: boolean
 }
 const Base = () => {
-    const { getMeAction, getThreads, addMessage, pinMessage, addOnlineUsersAction, removeOfflineUsersAction, addedToGroupAction } = useActions();
+    const { getMeAction, getThreads, addMessage, pinMessage, addOnlineUsersAction, removeOfflineUsersAction, addedToGroupAction, addedToChannelAction } = useActions();
     const [isDark, setIsDark] = useState<boolean>(localStorage.getItem("theme") && localStorage.getItem("theme") === 'dark' ? true : false);
     const { user, loading } = useTypedSelector(state => state.me)
     const { threads } = useTypedSelector(state => state.threads)
@@ -85,6 +85,10 @@ const Base = () => {
     const addedToGroupHandler = ({ group }: { group: Group }) => {
         addedToGroupAction(group)
     }
+
+    const addedToChannelHandler = ({ channel }: { channel: Channel }) => {
+        addedToChannelAction(channel)
+    }
     useEffect(() => {
         if (user) {
             apiClient.post(route('user.online'))
@@ -92,6 +96,7 @@ const Base = () => {
                 .listen(".new-message", (e: any) => { addMessage(e.message, "other") })
                 .listen(".online-users", changeOnlineUsersHandler)
                 .listen(".add-to-group", addedToGroupHandler)
+                .listen(".add-to-channel", addedToChannelHandler)
                 .listenForWhisper("typing", typingThreadHandler)
         }
 

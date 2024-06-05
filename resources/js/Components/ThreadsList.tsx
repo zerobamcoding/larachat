@@ -208,7 +208,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                                 : isGroup(th) ? (
                                                     <p>{th.name.slice(0, 1).toUpperCase()}</p>
                                                 ) : isChannel(th) ? (
-                                                    <Avatar h={12} w={12} source={th.avatar} />
+                                                    <Avatar h={12} w={12} user={th} />
                                                 ) : null}
 
                                             {isDirect(th) ? user && th.userone.id === user.id ?

@@ -103,6 +103,7 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
             return { ...state }
 
         case ChatsType.CHATS_ADD_TO_GROUP:
+        case ChatsType.CHATS_ADD_TO_CHANNEL:
             if (state.threads) {
                 return { loading: false, threads: [action.payload, ...state.threads] }
             }

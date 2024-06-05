@@ -5,6 +5,7 @@ import apiClient from "@/libs/apiClient";
 import { ThreadsList } from "../types/user";
 import { ChatJoinPayload, Message, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { GetGroupMembersPayload, Group, RemoveMessagePayload } from "../types/group";
+import { Channel } from "../types/channel";
 
 export const searchUser = (q: string) => async (dispatch: ThunkDispatch<{}, {}, SearchUserActions>) => {
     dispatch({ type: SearchUserType.SEARCH_LOADING })
@@ -29,6 +30,18 @@ export const addedToGroupAction = (group: Group) => async (dispatch: ThunkDispat
     try {
 
         dispatch({ type: ChatsType.CHATS_ADD_TO_GROUP, payload: group })
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
+export const addedToChannelAction = (channel: Channel) => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CHATS_LOADING })
+
+    try {
+
+        dispatch({ type: ChatsType.CHATS_ADD_TO_CHANNEL, payload: channel })
     } catch (error) {
         console.log(error);
 
