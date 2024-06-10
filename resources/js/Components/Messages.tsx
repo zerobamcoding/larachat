@@ -1,5 +1,5 @@
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from 'react'
-import { EllipsisVerticalIcon, MagnifyingGlassIcon, BellIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { EllipsisVerticalIcon, MagnifyingGlassIcon, EyeIcon, BellSlashIcon, Bars3Icon, PaperAirplaneIcon, PaperClipIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { User } from '@/redux/types/user'
 import { useActions } from '@/hooks/useActions'
 import { Direct, Message } from '@/redux/types/chat'
@@ -7,7 +7,7 @@ import { useTypedSelector } from '@/hooks/use-typed-selector'
 import Modal from '@/utils/Modal'
 import SendFile from './Modals/SendFile'
 import Avatar from './Avatar'
-import { isAnUser, isDirect, isGroup } from '@/utils/CheckType'
+import { isAnUser, isChannel, isDirect, isGroup } from '@/utils/CheckType'
 import { Group } from '@/redux/types/group'
 import apiClient from '@/libs/apiClient'
 import VoiceRecorder from './VoiceRecorder'
@@ -93,6 +93,9 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
         } else if (isGroup(thread)) {
             formData.append("to", thread.id.toString())
             formData.append("model", "group")
+        } else if (isChannel(thread)) {
+            formData.append("to", thread.id.toString())
+            formData.append("model", "channel")
         }
         formData.append("message", caption.length ? caption : messageValue)
         reply ? formData.append("reply", reply.id.toString()) : null
@@ -241,12 +244,9 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
                 <div className="z-20 flex flex-grow-0 flex-shrink-0 w-full pr-3  text-gray-600 dark:text-white">
                     <div className='mx-4 my-2'>
-                        {isGroup(thread) ? (
+                        {isGroup(thread) || isChannel(thread) ? (
                             <div className='flex flex-row items-center space-x-3' onClick={() => showGroupInfo()}>
-
-                                <div className={`group relative overflow-hidden flex items-center justify-center w-12 h-12 text-xl font-semibold text-white bg-blue-500 rounded-full `}>
-                                    <p>{thread.name.slice(0, 1).toUpperCase()}</p>
-                                </div>
+                                <Avatar w={12} h={12} user={thread} />
                                 <div className='flex flex-col'>
                                     <h3>{thread.name}</h3>
                                     <span className='font-extralight text-xs'>{thread.members_count} members</span>
@@ -311,12 +311,12 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                                         thread.messages.map((message, index, elements) => (
                                             <React.Fragment key={message.id}>
                                                 {message.type === "text" ? (
-                                                    <div className={`flex flex-row w-fit space-x-3 items-center ${message.sender.id === me?.id ? 'self-start' : 'self-end'}`}>
+                                                    <div className={`flex flex-row w-fit space-x-3 items-center ${message.sender.id === me?.id || isChannel(thread) ? 'self-start' : 'self-end'}`}>
                                                         {message.messageable_type.includes("Group") ? message.sender.id === me?.id && (elements[index + 1] && elements[index].sender.id !== elements[index + 1].sender.id) || (index === elements.length - 1 && message.sender.id === me?.id) ? (
                                                             <Avatar h={12} w={12} user={message.sender} />
 
                                                         ) : <div className='w-12 h-12'></div> : null}
-                                                        <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col rounded-t-lg  ${message.sender.id === me?.id ? 'bg-white rounded-r-lg' : 'bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
+                                                        <div onContextMenu={e => showMenu(e, message)} className={`flex flex-col rounded-t-lg  ${message.sender.id === me?.id || isChannel(thread) ? 'bg-white rounded-r-lg' : 'bg-lime-400 rounded-l-lg'} w-fit my-2 shadow`}>
                                                             {message.replied && (
                                                                 <div className='bg-slate-100 p-2 mx-2 mt-1 border-l-2 border-sky-400 rounded-md cursor-pointer'>
                                                                     <p className='text-xs font-extralight'>{message.replied.message}</p>
@@ -331,6 +331,12 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
                                                                 </div>
                                                                 <div className='flex items-end text-xs text-gray-800 font-extralight pr-2 pb-2'>
+                                                                    {isChannel(thread) && message.messageable_type.includes('Channel') && message.seens_count > 0 ? (
+                                                                        <div className='flex items-center mr-1'>
+                                                                            <EyeIcon className='h-4' />
+                                                                            <span>{message.seens_count}</span>
+                                                                        </div>
+                                                                    ) : null}
                                                                     <span>{new Date(message.created_at).getHours()}:{new Date(message.created_at).getMinutes()}</span>
                                                                 </div>
                                                             </div>
@@ -412,7 +418,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                         <div className='w-full text-center font-semibold text-lg uppercase'>join</div>
                     </div>
                 </div>
-            ) : thread && (
+            ) : thread && (!isChannel(thread) || (isChannel(thread) && (thread.creator === thread.pivot.user_id || thread.pivot.is_admin))) ? (
                 <>
                     {reply && (
                         <div className='w-full max-w-xl flex flex-row self-center bg-slate-50 p-4 rounded-xl'>
@@ -462,8 +468,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                             multiple />
                     </div>
                 </>
-            )
-            }
+            ) : null}
             <Modal show={isOpenFileModal} close={closeModal}>
                 <SendFile close={closeModal} files={files} caption={caption} setCaption={setCaption} send={sendMessageHandler} />
             </Modal>

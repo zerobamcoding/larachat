@@ -12,7 +12,7 @@ import apiClient from '@/libs/apiClient'
 import Modal from '@/utils/Modal'
 import GroupName from '@/Components/Modals/GroupName'
 import { Group } from '@/redux/types/group'
-import { isDirect, isGroup } from '@/utils/CheckType'
+import { isChannel, isDirect, isGroup } from '@/utils/CheckType'
 import GroupInfo from '@/Components/Modals/GroupInfo'
 import MessageMenu from '@/Components/Menu/MessageMenu'
 import GroupUserMenu from '@/Components/Menu/GroupUserMenu'
@@ -55,6 +55,11 @@ const Base = () => {
                 }
                 if (isGroup(th)) {
                     window.Echo.private(`group.${th.id}`)
+                        .listen('.add-message', (e: any) => addMessage(e.message, "other")
+                        )
+                }
+                if (isChannel(th)) {
+                    window.Echo.private(`channel.${th.id}`)
                         .listen('.add-message', (e: any) => addMessage(e.message, "other")
                         )
                 }

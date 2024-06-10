@@ -54,6 +54,7 @@ export interface Message {
     messageable_type: string
     messageable: Direct
     files: string | null
+    seens_count: number
     replied?: Message
     type: "text" | "file"
     created_at: Date

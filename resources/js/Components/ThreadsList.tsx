@@ -200,16 +200,14 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                                 <div className="flex justify-between w-full focus:outline-none">
                                     <div className="flex justify-between w-full">
                                         <div className="relative flex items-center justify-center w-12 h-12 ml-2 mr-3 text-xl font-semibold text-white bg-blue-500 rounded-full flex-no-shrink">
-                                            {isDirect(th) ?
+                                            {isGroup(th) || isChannel(th) ? (
+                                                <Avatar h={12} w={12} user={th} />
+                                            ) : isDirect(th) ?
                                                 user && th.userone.id === user.id ?
                                                     <Avatar h={12} w={12} user={th.usertwo} showBookmark />
                                                     :
                                                     <Avatar h={12} w={12} user={th.userone} showBookmark />
-                                                : isGroup(th) ? (
-                                                    <p>{th.name.slice(0, 1).toUpperCase()}</p>
-                                                ) : isChannel(th) ? (
-                                                    <Avatar h={12} w={12} user={th} />
-                                                ) : null}
+                                                : null}
 
                                             {isDirect(th) ? user && th.userone.id === user.id ?
                                                 onlines.includes(th.usertwo.id) ? (

@@ -10,7 +10,7 @@ class Message extends Model
 {
     use HasFactory;
     protected $guarded = [];
-    protected $appends = ['is_seen'];
+    protected $appends = ['is_seen', 'seens_count'];
     protected $hidden = ['seens'];
     protected $casts = [
         'created_at' => 'datetime',
@@ -36,7 +36,10 @@ class Message extends Model
         return $this->belongsToMany(User::class, "user_message");
     }
 
-
+    public function getSeensCountAttribute()
+    {
+        return $this->seens()->count();
+    }
     public function getIsSeenAttribute()
     {
         $user = Auth::user();

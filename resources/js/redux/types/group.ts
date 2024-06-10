@@ -38,6 +38,7 @@ export interface Group {
     messages?: Message[]
     unreaded_messages: number
     has_more: boolean
+    avatar?: string
     members_count: number
     members: UserWithPivot[]
     page: number

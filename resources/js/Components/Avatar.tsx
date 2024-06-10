@@ -3,12 +3,13 @@ import { IconBookmark, IconCamera } from "@tabler/icons-react"
 import { User } from '@/redux/types/user';
 import { useTypedSelector } from '@/hooks/use-typed-selector';
 import { Channel } from '@/redux/types/channel';
-import { isAnUser, isChannel } from '@/utils/CheckType';
+import { isAnUser, isChannel, isGroup } from '@/utils/CheckType';
+import { Group } from '@/redux/types/group';
 interface AvatarProps {
     h: number;
     w: number;
     editable?: boolean
-    user?: User | Channel
+    user?: User | Channel | Group
     source?: string
     selected?: boolean
     showBookmark?: boolean
@@ -43,7 +44,7 @@ const Avatar: React.FC<AvatarProps> = ({ h, w, editable = false, user, selected 
                             <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.username} avatar`} />
                         ) : (<p>{user?.username?.slice(0, 1).toUpperCase()}</p>)
                     )
-                ) : isChannel(user) ? (
+                ) : isChannel(user) || isGroup(user) ? (
                     user.avatar ? (
                         <img className="object-cover w-full h-full rounded-full" src={`storage/${user.avatar}`} alt={`${user.name} avatar`} />
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Channel;
 use App\Models\Group;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -30,5 +31,5 @@ Broadcast::channel('group.{id}', function ($user, $id) {
 
 
 Broadcast::channel('channel.{id}', function ($user, $id) {
-    return Group::find($id)->users->contains($user->id);
+    return Channel::find($id)->users->contains($user->id);
 });
