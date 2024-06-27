@@ -102,6 +102,7 @@ Route::controller(ChannelController::class)->prefix("channel")->name('channel.')
     Route::post('/admin', 'changeAdmin')->name("change.admin")->middleware("auth:sanctum");
     Route::post('/remove-user', 'removeChannelUser')->name("remove.user")->middleware("auth:sanctum");
     Route::post('/link', 'getLink')->name("link")->middleware("auth:sanctum");
+    Route::post('/unique-link', 'isUniqueLink')->name("unique.link")->middleware("auth:sanctum");
 });
 
 

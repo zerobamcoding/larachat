@@ -27,6 +27,7 @@ class ChannelController extends Controller
         $validator = Validator::make($request->all(), [
             "name" => "required|string",
             "description" => "sometimes|string",
+            "link" => "sometimes|string",
             "users" => "sometimes|array",
             "users.*" => "integer"
         ]);
@@ -45,7 +46,8 @@ class ChannelController extends Controller
 
             $channel = new Channel();
             $channel->name = $request->name;
-            $channel->description = $request->description;
+            $channel->description = $request->description ?? null;
+            $channel->link = $request->link ?? null;
             $channel->avatar = $uploaded ?? null;
             $channel->creator = $user->id;
             $channel->save();
@@ -68,7 +70,7 @@ class ChannelController extends Controller
     public function changeAdmin(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            "id" => "required|exists:groups,id",
+            "id" => "required|exists:channels,id",
             "user" => "required|exists:users,id",
             "is_admin" => "required|boolean"
         ]);
@@ -90,9 +92,15 @@ class ChannelController extends Controller
         }
     }
 
-    public function generateLink()
+    public function isUniqueLink(Request $request)
     {
-        return substr(base_convert(sha1(uniqid(mt_rand())), 8, 16), 0, 6);
+        $validator = Validator::make($request->all(), [
+            "link" => "required|unique:channels,link",
+        ]);
+        if ($validator->fails()) {
+            return ["success" => false];
+        }
+        return ["success" => true];
     }
 
     public function removeGroupUser(Request $request)
@@ -103,19 +111,5 @@ class ChannelController extends Controller
         $channel->users()->detach($remove_user);
         $channel->save();
         return ["success" => true, 'members' => $channel->users, 'id' => $request->id];
-    }
-
-    public function getLink(Request $request)
-    {
-        $channel = Channel::find($request->id);
-        if (is_null($channel->link)) {
-
-            $hash = $this->generateLink();
-            $channel->link = $hash;
-            $channel->save();
-        } else {
-            $hash = $channel->link;
-        }
-        return ["success" => true, 'link' => $hash];
     }
 }

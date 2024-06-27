@@ -418,7 +418,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
                         <div className='w-full text-center font-semibold text-lg uppercase'>join</div>
                     </div>
                 </div>
-            ) : thread && (!isChannel(thread) || (isChannel(thread) && (thread.creator === thread.pivot.user_id || thread.pivot.is_admin))) ? (
+            ) : thread && (!isChannel(thread) || (isChannel(thread) && (thread.creator === thread.pivot?.user_id || thread.pivot?.is_admin || thread.creator === me?.id))) ? (
                 <>
                     {reply && (
                         <div className='w-full max-w-xl flex flex-row self-center bg-slate-50 p-4 rounded-xl'>

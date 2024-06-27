@@ -61,8 +61,10 @@ class ChatController extends Controller
             return ["success" => false, "errors" => $validator->errors()->getMessages()];
         }
 
-        $users = User::where("username", "like", "%" . trim($request->q) . "%")->get()->toArray();
-        return ["success" => true, "users" => $users];
+        $users = User::where("username", "like", "%" . trim($request->q) . "%")->get();
+        $channels = Channel::where("link", "like", "%" . trim($request->q) . "%")->get();
+        $searched = $users->merge($channels);
+        return ["success" => true, "users" => $searched];
     }
 
     public function sendDirectMessage(User $user, array $data, array $uploaded)
