@@ -1,7 +1,12 @@
 import { Message } from "./chat"
 import { Pivot, UserWithPivot } from "./group"
-import { ValidationErrors } from "./user"
+import { User, ValidationErrors } from "./user"
 
+export interface GetChannelMembersPayload {
+    success: boolean
+    members?: User[]
+    id?: number
+}
 
 export interface MakeNewChannelPayload {
     success: boolean

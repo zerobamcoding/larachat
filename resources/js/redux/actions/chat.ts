@@ -1,5 +1,5 @@
 import { SearchUserType, ChatsType, OnlineUsersType } from "../action-types/chat";
-import { Channel } from "../types/channel";
+import { Channel, GetChannelMembersPayload } from "../types/channel";
 import { ChatJoinPayload, PaginatedMessages, SentMessageResponse, ThreadsResponse } from "../types/chat";
 import { GetGroupMembersPayload, Group, RemoveMessagePayload } from "../types/group";
 import { ThreadsList, ValidationErrors } from "../types/user";
@@ -74,6 +74,11 @@ interface GetGroupMembers {
     payload: GetGroupMembersPayload
 }
 
+interface GetChannelMembers {
+    type: ChatsType.CHATS_GET_CHANNEL_MEMBERS,
+    payload: GetChannelMembersPayload
+}
+
 interface JoinThread {
     type: ChatsType.CHATS_JOIN,
     payload: ChatJoinPayload
@@ -96,6 +101,7 @@ export type ChatsActions =
     AddToChannel |
     JoinThread |
     GetGroupMembers |
+    GetChannelMembers |
     loadMoreMessagesSuccess |
     ChatsError
 

@@ -32,6 +32,9 @@ class ChatController extends Controller
         if ($request->type === "Group") {
             Group::find($request->id)->users()->attach($user);
             $thread = Group::find($request->id);
+        } else if ($request->type === "Channel") {
+            Channel::find($request->id)->users()->attach($user);
+            $thread = Channel::find($request->id);
         }
 
         return ["success" => true, "thread" => $thread];
@@ -63,6 +66,10 @@ class ChatController extends Controller
 
         $users = User::where("username", "like", "%" . trim($request->q) . "%")->get();
         $channels = Channel::where("link", "like", "%" . trim($request->q) . "%")->get();
+        $user = Auth::user();
+        foreach ($channels as $channel) {
+            $channel['must_join'] = !$channel->users->contains($user->id);
+        }
         $searched = $users->merge($channels);
         return ["success" => true, "users" => $searched];
     }

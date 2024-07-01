@@ -18,6 +18,7 @@ import MessageMenu from '@/Components/Menu/MessageMenu'
 import GroupUserMenu from '@/Components/Menu/GroupUserMenu'
 import { Channel } from '@/redux/types/channel'
 import CreateChannel from '@/Components/Modals/CreateChannel'
+import ChannelInfo from '@/Components/Modals/ChannelInfo'
 
 interface TypingThreadTypes {
     thread: number
@@ -33,14 +34,17 @@ const Base = () => {
     const [selectedThread, setSelectedThread] = useState<User | Direct | Group | Channel | null>(null)
     const [isShowCTXMenu, setIsShowCTXMenu] = useState(false)
     const [isShowGroupUserCTXMenu, setIsShowGroupUserCTXMenu] = useState(false)
+    const [isShowChannelUserCTXMenu, setIsShowChannelUserCTXMenu] = useState(false)
     const [positionCTXMenu, setPositionCTXMenu] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
     const [selectedMessageCTX, setSelectedMessageCTX] = useState<Message | null>(null)
     const [selectedUserGroupCTX, setSelectedUserGroupCTX] = useState<User | null>(null)
+    const [selectedUserChannelCTX, setSelectedUserChannelCTX] = useState<User | null>(null)
     const [reply, setReply] = useState<Message | null>(null)
     const [isShowUserInfo, setIsShowUserInfo] = useState(false)
     const [isShowCreateGropModal, setIsShowCreateGropModal] = useState(false)
     const [isShowCreateChannelModal, setIsShowCreateChannelModal] = useState(false)
     const [isShowGroupInfoModal, setIsShowGroupInfoModal] = useState(false)
+    const [isShowChannelInfoModal, setIsShowChannelInfoModal] = useState(false)
     const [contacts, setContacts] = useState<User[]>([])
 
     useEffect(() => {
@@ -71,9 +75,9 @@ const Base = () => {
             const updateSelectedThred = threads.filter(th => th.id === selectedThread.id)[0];
             //@ts-ignore
             let newData = { ...selectedThread, messages: updateSelectedThred.messages, has_more: updateSelectedThred.has_more, page: updateSelectedThred.page }
-            if (isGroup(updateSelectedThred) && updateSelectedThred.members) {
+            if ((isGroup(updateSelectedThred) || isChannel(updateSelectedThred))) {
                 //@ts-ignore
-                newData = { ...newData, members: [...updateSelectedThred.members], must_join: false }
+                newData = { ...newData, members: updateSelectedThred.members ? [...updateSelectedThred.members] : [], must_join: false }
             }
             setSelectedThread(newData)
         }
@@ -159,7 +163,7 @@ const Base = () => {
                 removeReply={() => setReply(null)}
                 showInfo={() => setIsShowUserInfo(!isShowUserInfo)}
                 onlines={onlines}
-                showGroupInfo={() => setIsShowGroupInfoModal(true)}
+                showGroupInfo={() => isGroup(selectedThread) ? setIsShowGroupInfoModal(true) : setIsShowChannelInfoModal(true)}
                 selectThread={setSelectedThread}
             />
 
@@ -214,6 +218,18 @@ const Base = () => {
                         showCTXMenu={setIsShowGroupUserCTXMenu}
                         changeMenuPosition={setPositionCTXMenu}
                         selectUser={setSelectedUserGroupCTX} />
+                ) : null}
+            </Modal>
+            <Modal show={isShowChannelInfoModal} close={() => setIsShowChannelInfoModal(false)} >
+                {selectedThread && isChannel(selectedThread) && user ? (
+
+                    <ChannelInfo
+                        close={() => setIsShowChannelInfoModal(false)}
+                        channel={selectedThread}
+                        user={user}
+                        showCTXMenu={setIsShowChannelUserCTXMenu}
+                        changeMenuPosition={setPositionCTXMenu}
+                        selectUser={setSelectedUserChannelCTX} />
                 ) : null}
             </Modal>
         </div>

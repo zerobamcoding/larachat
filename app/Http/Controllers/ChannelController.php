@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 
 class ChannelController extends Controller
 {
-    public function getGroupMembers(Request $request)
+    public function getChannelMembers(Request $request)
     {
         $user = Auth::user();
         $channel = Channel::find($request->id);

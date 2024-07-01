@@ -163,6 +163,20 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
                 }
             }
             return { ...state }
+
+        case ChatsType.CHATS_GET_CHANNEL_MEMBERS:
+            if (state.threads) {
+                const threads = [...state.threads]
+                const editedThread = state.threads.findIndex(th => th.id == action.payload.id && th.type === "Channel")
+
+                if (editedThread >= 0) {
+                    //@ts-ignore
+                    threads[editedThread].members = [...action.payload.members]
+
+                    return { loading: false, threads }
+                }
+            }
+            return { ...state }
         case ChatsType.CHATS_REMOVE_MESSAGE:
             if (state.threads) {
                 const threads = [...state.threads]
