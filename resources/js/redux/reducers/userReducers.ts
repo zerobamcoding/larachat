@@ -20,6 +20,8 @@ export const meReducer = (state: MeState = meInitialState, action: MeActions) =>
             return { ...state, loading: false, user: action.payload.user }
         case MeTypes.ME_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
+        case MeTypes.CLEAR_ME:
+            return { loading: false, errors: [], user: null }
         default:
             return state
     }

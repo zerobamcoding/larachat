@@ -149,6 +149,7 @@ const Base = () => {
                 dark={isDark}
                 changeTheme={setIsDark}
                 selectThread={setSelectedThread}
+                selected={selectedThread}
                 typingThreads={typingThreads}
                 createGroup={() => setIsShowCreateGropModal(true)}
                 createChannel={() => setIsShowCreateChannelModal(true)}

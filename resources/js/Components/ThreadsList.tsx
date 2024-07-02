@@ -21,13 +21,14 @@ interface PageProps {
     dark: boolean;
     changeTheme: React.Dispatch<React.SetStateAction<boolean>>
     selectThread: React.Dispatch<React.SetStateAction<Direct | User | Group | Channel | null>>
+    selected: Direct | User | Group | Channel | null
     typingThreads: number[]
     onlines: number[]
     createGroup: () => void
     createChannel: () => void
 }
-const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typingThreads, onlines, createGroup, createChannel }) => {
-    const { searchUser } = useActions();
+const ThreadsList: React.FC<PageProps> = ({ selected, dark, changeTheme, selectThread, typingThreads, onlines, createGroup, createChannel }) => {
+    const { searchUser, clearChatsAction, clearMeAction } = useActions();
     const { user } = useTypedSelector(state => state.me)
     const { users: searchedUsers } = useTypedSelector(state => state.search)
     const { threads } = useTypedSelector(state => state.threads)
@@ -54,6 +55,8 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
     const logout = async () => {
         const { data }: { data: AuthResponse } = await apiClient.get(route("auth.logout"))
         if (data.success) {
+            clearChatsAction()
+            clearMeAction()
             localStorage.removeItem("token");
             router.visit(route("register"))
             return
@@ -188,7 +191,7 @@ const ThreadsList: React.FC<PageProps> = ({ dark, changeTheme, selectThread, typ
                             </li>
                         )) : threads?.map(th => (
                             <li
-                                className="flex flex-no-wrap items-center pr-3 rounded-lg cursor-pointer mt-200 py-65 hover:bg-gray-200 dark:hover:text-black"
+                                className={`flex flex-no-wrap items-center pr-3 rounded-lg cursor-pointer mt-200 py-65  ${selected && selected.id === th.id && selected.type === th.type ? 'bg-gray-200 dark:text-black' : "hover:bg-gray-200 dark:hover:text-black"}`}
                                 style={{ paddingTop: "0.65rem", paddingBottom: "0.65rem" }}
                                 onClick={() => selectThread(th)}
                                 key={th.id}

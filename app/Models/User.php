@@ -27,7 +27,12 @@ class User extends Authenticatable
     protected $hidden = [
         'otp',
     ];
+    protected $appends = ['type'];
 
+    public function getTypeAttribute()
+    {
+        return "User";
+    }
     public function groups()
     {
         return $this->belongsToMany(Group::class, 'group_user')->withPivot(['is_admin', 'added_at']);

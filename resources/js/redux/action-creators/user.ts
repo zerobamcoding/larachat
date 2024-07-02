@@ -58,3 +58,7 @@ export const updateUser = (userData: any) => async (dispatch: ThunkDispatch<{}, 
 
     }
 }
+
+export const clearMeAction = () => async (dispatch: ThunkDispatch<{}, {}, MeActions>) => {
+    dispatch({ type: MeTypes.CLEAR_ME })
+}

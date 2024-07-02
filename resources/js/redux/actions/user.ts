@@ -14,8 +14,12 @@ interface MeErrorAction {
     type: MeTypes.ME_ERROR
     payload: AuthPayload
 }
+interface MeClearAction {
+    type: MeTypes.CLEAR_ME,
+}
 
 export type MeActions = MeLoadingAction |
     MeSuccessAction |
-    MeErrorAction
+    MeErrorAction |
+    MeClearAction
 

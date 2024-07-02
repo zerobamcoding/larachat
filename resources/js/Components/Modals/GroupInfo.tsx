@@ -35,9 +35,7 @@ const GroupInfo: React.FC<PageProps> = ({ close, group, user, showCTXMenu, chang
         <div className='flex flex-col'>
             <div className='flex flex-row justify-between mb-6 p-5 pb-0 h-fit'>
                 <div className='flex space-x-3 items-center'>
-                    <div className={`group relative overflow-hidden flex items-center justify-center w-12 h-12 text-xl font-semibold text-white bg-blue-500 rounded-full `}>
-                        <p>{group.name.slice(0, 1).toUpperCase()}</p>
-                    </div>
+                    <Avatar w={12} h={12} user={group} />
                     <h3 className='text-lg font-bold'>{group.name}</h3>
                 </div>
                 <IconX className='h-5 cursor-pointer' onClick={() => close()} />

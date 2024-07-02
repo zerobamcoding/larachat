@@ -90,6 +90,10 @@ interface ChatsError {
     payload: { errors: ValidationErrors }
 }
 
+interface ClearChats {
+    type: ChatsType.CLEAR_THREADS
+}
+
 export type ChatsActions =
     ChatsLoading |
     getThreadsSuccess |
@@ -103,7 +107,8 @@ export type ChatsActions =
     GetGroupMembers |
     GetChannelMembers |
     loadMoreMessagesSuccess |
-    ChatsError
+    ChatsError |
+    ClearChats
 
 
 interface AddOnlineUsers {

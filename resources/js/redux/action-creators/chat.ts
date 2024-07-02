@@ -235,6 +235,10 @@ export const removeGroupUserAction = (id: number, user: number) => async (dispat
 
     }
 }
+
+export const clearChatsAction = () => async (dispatch: ThunkDispatch<{}, {}, ChatsActions>) => {
+    dispatch({ type: ChatsType.CLEAR_THREADS })
+}
 export const addOnlineUsersAction = (data: number[]) => async (dispatch: ThunkDispatch<{}, {}, OnlineUsersActions>) => {
     dispatch({ type: OnlineUsersType.ADD_ONLINE_USERS, payload: data })
 }

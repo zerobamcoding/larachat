@@ -6,6 +6,7 @@ export interface ValidationErrors {
 
 
 export interface User {
+    type: "User"
     id: number
     name?: string
     description?: string

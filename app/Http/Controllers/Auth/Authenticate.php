@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Models\User;
 use App\Models\Guest;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -166,6 +167,8 @@ class Authenticate extends Controller
          */
 
         $user = Auth::user();
+        $userInstance = new UserController();
+        $userInstance->userIsOfline($request);
         $user->tokens()->delete();
 
         return ["success" => true];

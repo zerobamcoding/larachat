@@ -7,7 +7,7 @@ import { User, ValidationErrors } from "../types/user";
 
 interface SearchUserState {
     loading: boolean;
-    users: User[] | null
+    users: (User | Channel)[] | null
     errors?: ValidationErrors
 
 }
@@ -199,6 +199,8 @@ export const threadsReducer = (state: ChatsState = chatsInit, action: ChatsActio
             return { ...state }
         case ChatsType.CHATS_ERROR:
             return { ...state, loading: false, errors: action.payload.errors }
+        case ChatsType.CLEAR_THREADS:
+            return { loading: false, errors: [], threads: [] }
         default:
             return state
     }
