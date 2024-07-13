@@ -71,12 +71,7 @@ const ThreadsList: React.FC<PageProps> = ({ selected, dark, changeTheme, selectT
                 className={`absolute z-[100] left-0 top-0 h-full w-80 bg-white dark:bg-slate-800 shadow-md transition-transform duration-300 dark:text-white ${isSidebarOpen ? "" : "-translate-x-full"}`}>
                 <div className='flex flex-col'>
                     <div className='flex flex-col w-full space-y-2 p-5'>
-
-                        <div className="w-12 h-12 my-2 bg-blue-500 bg-center bg-no-repeat bg-cover rounded-full cursor-pointer"
-                        >
-
-                            <img className="content-center object-cover w-full h-full border-2 border-gray-200 rounded-full" src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=200&q=50" alt="" />
-                        </div>
+                        {user && <Avatar w={12} h={12} user={user} />}
                         <h3>{user && user.name ? user.name : user ? `${user.username}` : "Not set"}</h3>
                     </div>
                     <hr />

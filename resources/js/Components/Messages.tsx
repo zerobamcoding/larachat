@@ -84,6 +84,7 @@ const Messages: React.FC<PageProps> = ({ thread, showCTXMenu, changeMenuPosition
 
         if (isAnUser(thread)) {
             formData.append("to", thread.id.toString())
+            formData.append("model", "direct")
         } else if (isDirect(thread)) {
 
             if (thread && contact) {

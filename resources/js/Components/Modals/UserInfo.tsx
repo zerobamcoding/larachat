@@ -64,7 +64,7 @@ const UserInfo: React.FC<PageProps> = ({ close, level }) => {
                 <li className='bg-slate-400/20 p-5 text-sm font-extralight'>
                     <p>Anything that describe you like age and mood and ...</p>
                 </li>
-                <li className={`px-5 pb-2 pt-5 cursor-pointer hover:bg-slate-400/20 duration-300 ${errors && errors.name ? "border-[1px] border-red-400" : ""}`} onClick={() => setEditMode("name")} >
+                <li className={`px-5 pb-2 pt-5 cursor-pointer hover:bg-slate-400/20 duration-300 ${errors && "name" in errors ? "border-[1px] border-red-400" : ""}`} onClick={() => setEditMode("name")} >
                     <div className='flex flex-col '>
                         <div className='flex justify-between '>
                             <div className='flex space-x-3'>
@@ -83,7 +83,7 @@ const UserInfo: React.FC<PageProps> = ({ close, level }) => {
                                 <h3 className='text-blue-500'>{name}</h3>
                             )}
                         </div>
-                        {errors && errors.name && errors.name.map((e, i) => <p key={i} className='text-xs font-extralight text-red-400 pt-2'>{e}</p>)}
+                        {errors && "name" in errors && errors.name.map((e, i) => <p key={i} className='text-xs font-extralight text-red-400 pt-2'>{e}</p>)}
                     </div>
                 </li>
                 <li className='flex justify-between px-5 py-2 cursor-pointer hover:bg-slate-400/20 duration-300' onClick={() => setEditMode("mobile")} >
